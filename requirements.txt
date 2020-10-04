@@ -4,4 +4,8 @@
 #
 #    pip-compile --output-file=requirements.txt requirements.in
 #
+attrs==20.2.0             # via glom
+boltons==20.2.1           # via face, glom
+face==20.1.1              # via glom
+glom==20.8.0              # via -r requirements.in
 toml==0.10.1              # via -r requirements.in
