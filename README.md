@@ -1,2 +1,2 @@
-# konfetti
+# konfik
 Experimentation with config management
