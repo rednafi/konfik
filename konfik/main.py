@@ -7,15 +7,16 @@ import subprocess
 import shlex
 from functools import reduce
 
-
+# Pretty traceback with Rich
 traceback.install()
+
+# Rich console object for JSON highlighting
 console = Console()
 
 
 class DotMap(dict):
     """Modified dictionary object where the values can be accessed
     as dotdict.key instead of dct[key]
-
     """
 
     def __getattr__(self, attr):
@@ -37,6 +38,8 @@ class DotMap(dict):
 
 
 class RecursiveDotMap:
+    """Recursively applies DotMap object to a nested dictionary."""
+
     def __init__(self, dct, dotmap=DotMap):
         self.dct = dct
         self.dotmap = dotmap
@@ -61,41 +64,58 @@ class RecursiveDotMap:
         return reduce(getattr, query.split("."), dct)
 
 
-def load_config(config_path):
-    """Load config.toml file."""
-    # FileNotFound & TomlDecodeError will be raised
-    config = toml.load(config_path)
-    return config
+class ConfigParser:
+    def __init__(
+        self,
+        config_path,
+        recursive_dotmap=RecursiveDotMap,
+    ):
+        self.config = self._load_config(config_path)
+        self.recursive_dotmap = recursive_dotmap
 
+    def serialize(self):
+        """Serializing TOML config to JSON."""
 
-def serializer(config):
-    """Serializing TOML config to JSON."""
-    config_json = json.dumps(config, indent=2)
-    syntax = Syntax(
-        config_json,
-        "json",
-        background_color="default",
-        theme="monokai",
-    )
-    console.print(syntax)
+        config_json = json.dumps(self.config, indent=2)
+        syntax = Syntax(
+            config_json,
+            "json",
+            background_color="default",
+            theme="monokai",
+        )
+        console.print(syntax)
 
+    def get(self, query):
+        """Access vars or cmds."""
 
-def access(config, query):
-    """Access vars or cmds."""
-    # Raise path access error if config can't be accessed
-    config = RecursiveDotMap(config)
-    return config.dotmap_query(query)
-    
-def run_cmd(cmd):
-    subprocess.check_call(shlex.split(cmd))
+        # Raise path access error if config can't be accessed
+        config = self.recursive_dotmap(self.config)
+        return config.dotmap_query(query)
+
+    def run(self, query):
+        "Run cmd."
+        self._run(self.get(query))
+
+    @staticmethod
+    def _load_config(config_path):
+        """Load config.toml file."""
+
+        # FileNotFound & TomlDecodeError will be raised
+        config = toml.load(config_path)
+        return config
+
+    @staticmethod
+    def _run(cmd):
+        subprocess.check_call(shlex.split(cmd))
 
 
 # TODO
 # exceptions
 # detect vars and cmds
+from pathlib import Path
 
-config = load_config("./config.toml")
-serializer(config)
+BASE_DIR = Path(".").parent
+CONFIG_PATH = BASE_DIR / "config.toml"
 
-print(access(config, "bash.cmd.echo"))
-# cmd = access(config, "bash.cmd.ech")
+config = ConfigParser(config_path=CONFIG_PATH)
+config.serialize()
