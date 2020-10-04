@@ -1,0 +1,9 @@
+title = "config"
+# Keep the config file as flat as possible
+
+[bash.var]
+    a = "a"
+    b = "b"
+
+[bash.cmd]
+    echo = "echo hello world!"
