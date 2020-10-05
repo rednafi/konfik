@@ -3,12 +3,14 @@ import json
 from rich.console import Console
 from rich.syntax import Syntax
 from rich import traceback
+from rich import print
 import subprocess
 import shlex
 from functools import reduce
+import sys
 
 # Pretty traceback with Rich
-traceback.install()
+traceback.install(word_wrap=True)
 
 # Rich console object for JSON highlighting
 console = Console()
@@ -20,7 +22,10 @@ class DotMap(dict):
     """
 
     def __getattr__(self, attr):
-        return self[attr]
+        try:
+            return self[attr]
+        except KeyError:
+            raise
 
     def __setattr__(self, key, val):
         self.__setitem__(key, val)
@@ -82,8 +87,13 @@ class Konfik:
         """Load config.toml file."""
 
         # FileNotFound & TomlDecodeError will be raised
-        config = toml.load(config_path)
-        return config
+        try:
+            config = toml.load(config_path)
+            return config
+
+        except toml.TomlDecodeError as exc:
+            console.print(f"\nTomlDecodeError: {exc}\n", style='bold red')
+            sys.exit(1)
 
     # @staticmethod
     # def _run(cmd):
@@ -91,5 +101,5 @@ class Konfik:
 
 
 # # TODO
-# # exceptions
+# 
 # #

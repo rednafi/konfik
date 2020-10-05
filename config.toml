@@ -1,10 +1,11 @@
-title = "config"
+title = "Example config"
 # Keep the config file as flat as possible
 
 [bash.var]
     A = "a"
     B = "b"
-    C = [1,2,3]
-    
+    C = [1,2,3
+
+
 [bash.cmd]
     ECHO = "echo hello world!"
