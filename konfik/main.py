@@ -92,7 +92,7 @@ class Konfik:
             return config
 
         except toml.TomlDecodeError as exc:
-            console.print(f"\nTomlDecodeError: {exc}\n", style='bold red')
+            console.print(f"\nTomlDecodeError: {exc}\n", style="bold red")
             sys.exit(1)
 
     # @staticmethod

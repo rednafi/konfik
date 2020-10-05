@@ -76,10 +76,9 @@ def test_deep_dotmap():
     assert isinstance(d.j, DotMap) is True
     assert isinstance(d.j.k, DotMap) is True
 
-
     # Check if the chained dot notation key access works
     assert d.j == {"k": {"l": 1}}
-    assert d.j.k == {"l":1}
+    assert d.j.k == {"l": 1}
     assert d.j.k.l == 1
 
     # Check if dot notation assignment works
@@ -106,12 +105,12 @@ def test_deep_dotmap():
 
     # Check if [] notation key access works
     assert d["j"] == {"k": {"l": 1}}
-    assert d["j"]["k"] == {"l":1}
+    assert d["j"]["k"] == {"l": 1}
     assert d["j"]["k"]["l"] == 1
 
     # Check if [] notation assignment works
     d["j"] = {"m": 2}
-    assert d["j"]["m"] ==  2
+    assert d["j"]["m"] == 2
 
     # Check if [] notation deletion works
     del d["j"]["m"]
