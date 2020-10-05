@@ -37,46 +37,38 @@ class DotMap(dict):
         del self.__dict__[key]
 
 
-class RecursiveDotMap:
+class DeepDotMap(DotMap):
     """Recursively applies DotMap object to a nested dictionary."""
 
-    def __init__(self, dct, dotmap=DotMap):
-        self.dct = dct
-        self.dotmap = dotmap
+    def __init__(self, dct):
+        super().__init__(dct)
 
-    def dotmap_query(self, query):
-        dct = self._dotmap_apply(self.dct, self.dotmap)
-        return self._dotmap_query(dct, query)
+    def __call__(self):
+        return self._dotmap_apply(self, self.__class__)
 
-    @staticmethod
-    def _dotmap_apply(dct, dotmap):
+    def _dotmap_apply(self, dct, dotmap):
         """Recursively applying DotMap class."""
 
         dct = dotmap(dct)
         for key, val in dct.items():
             if isinstance(val, dict) and not isinstance(val, dotmap):
-                dct[key] = RecursiveDotMap._dotmap_apply(val, dotmap)
+                dct[key] = self._dotmap_apply(val, dotmap)
         return dct
 
-    @staticmethod
-    def _dotmap_query(dct, query):
-        "Chained query of dotmap object."
-        return reduce(getattr, query.split("."), dct)
 
-
-class ConfigParser:
+class Konfik:
     def __init__(
         self,
         config_path,
-        recursive_dotmap=RecursiveDotMap,
+        deep_dotmap=DeepDotMap,
     ):
-        self.config = self._load_config(config_path)
-        self.recursive_dotmap = recursive_dotmap
+        self._config = self._load_config(config_path)
+        self.config = deep_dotmap(self._config)()
 
     def serialize(self):
         """Serializing TOML config to JSON."""
 
-        config_json = json.dumps(self.config, indent=2)
+        config_json = json.dumps(self._config, indent=2)
         syntax = Syntax(
             config_json,
             "json",
@@ -84,17 +76,6 @@ class ConfigParser:
             theme="monokai",
         )
         console.print(syntax)
-
-    def get(self, query):
-        """Access vars or cmds."""
-
-        # Raise path access error if config can't be accessed
-        config = self.recursive_dotmap(self.config)
-        return config.dotmap_query(query)
-
-    def run(self, query):
-        "Run cmd."
-        self._run(self.get(query))
 
     @staticmethod
     def _load_config(config_path):
@@ -104,18 +85,21 @@ class ConfigParser:
         config = toml.load(config_path)
         return config
 
-    @staticmethod
-    def _run(cmd):
-        subprocess.check_call(shlex.split(cmd))
+    # @staticmethod
+    # def _run(cmd):
+    #     subprocess.check_call(shlex.split(cmd))
 
 
-# TODO
-# exceptions
-# detect vars and cmds
+# # TODO
+# # exceptions
+# # detect vars and cmds
 from pathlib import Path
 
 BASE_DIR = Path(".").parent
 CONFIG_PATH = BASE_DIR / "config.toml"
 
-config = ConfigParser(config_path=CONFIG_PATH)
-config.serialize()
+konfik = Konfik(config_path=CONFIG_PATH)
+print(konfik.config.bash.var.A)
+print(konfik.config.bash.cmd.ECHO)
+
+#config.run('bash.cmd.')
