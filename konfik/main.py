@@ -49,7 +49,7 @@ class DeepDotMap(DotMap):
         super().__init__(dct)
 
     def __call__(self):
-        return self._dotmap_apply(self, self.__class__)
+        return self._dotmap_apply(self, DotMap)
 
     def _dotmap_apply(self, dct, dotmap):
         """Recursively applying DotMap class."""
@@ -101,5 +101,5 @@ class Konfik:
 
 
 # # TODO
-# 
+#
 # #

@@ -4,7 +4,7 @@ title = "Example config"
 [bash.var]
     A = "a"
     B = "b"
-    C = [1,2,3
+    C = [1,2,3]
 
 
 [bash.cmd]
