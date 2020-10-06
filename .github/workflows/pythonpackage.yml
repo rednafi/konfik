@@ -26,7 +26,8 @@ jobs:
           poetry install
       - name: Format check with black
         run: |
-          python -m black .
+          pip install .
+          black --check .
       - name: Test with pytest
         run: |
           pip install .
