@@ -36,5 +36,6 @@ jobs:
           poetry run black --check .
 
       - name: Run the Tests
+        run: |
           echo "Running pytest..."
           poetry run pytest -v
