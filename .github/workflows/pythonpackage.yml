@@ -19,7 +19,7 @@ jobs:
         uses: actions/setup-python@v1
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Test
+      - name: Install the Dependencies
         run: |
           echo "Upgrading pip ...."
           python -m pip install --upgrade pip
@@ -30,8 +30,11 @@ jobs:
           echo "Installing the dependencies..."
           poetry install
 
+      - name: Check Black Formatting
+        run: |
           echo "Checking black linter..."
           poetry run black --check .
 
+      - name: Run the Tests
           echo "Running pytest..."
           poetry run pytest -v
