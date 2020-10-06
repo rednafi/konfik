@@ -105,11 +105,13 @@ class KonfikCLI:
     def __init__(self, konfik):
         parser = argparse.ArgumentParser(description="Konfik CLI")
         parser.add_argument("--get", help="Get variables from config.toml")
-        self.query = parser.parse_args().get.split(".")
+        self.query = parser.parse_args().get
         self.konfik = konfik
 
-    def get(self, query=None):
-        return self.get_by_path(self.konfik.config, self.query)
+    def get(self):
+        if self.query is not None:
+            query = self.query.split('.')
+        return self.get_by_path(self.konfik.config, query)
 
     @staticmethod
     def get_by_path(root, items):
@@ -117,9 +119,9 @@ class KonfikCLI:
         return reduce(operator.getitem, items, root)
 
 
-konfik = Konfik("./config.toml")
-konfik_cli = KonfikCLI(konfik)
-print(konfik_cli.get())
+# konfik = Konfik("./config.toml")
+# konfik_cli = KonfikCLI(konfik)
+# print(konfik_cli.get())
 
 
 # # TODO
