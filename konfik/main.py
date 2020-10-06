@@ -3,11 +3,15 @@ import json
 from rich.console import Console
 from rich.syntax import Syntax
 from rich import traceback
-from rich import print
+
+# from rich import print
 import subprocess
 import shlex
 from functools import reduce
 import sys
+import argparse
+from functools import reduce
+import operator
 
 # Pretty traceback with Rich
 traceback.install(word_wrap=True)
@@ -22,10 +26,7 @@ class DotMap(dict):
     """
 
     def __getattr__(self, attr):
-        try:
-            return self[attr]
-        except KeyError:
-            raise
+        return self[attr]
 
     def __setattr__(self, key, val):
         self.__setitem__(key, val)
@@ -98,6 +99,27 @@ class Konfik:
     # @staticmethod
     # def _run(cmd):
     #     subprocess.check_call(shlex.split(cmd))
+
+
+class KonfikCLI:
+    def __init__(self, konfik):
+        parser = argparse.ArgumentParser(description="Konfik CLI")
+        parser.add_argument("--get", help="Get variables from config.toml")
+        self.query = parser.parse_args().get.split(".")
+        self.konfik = konfik
+
+    def get(self, query=None):
+        return self.get_by_path(self.konfik.config, self.query)
+
+    @staticmethod
+    def get_by_path(root, items):
+        """Access a nested object in root by item sequence."""
+        return reduce(operator.getitem, items, root)
+
+
+konfik = Konfik("./config.toml")
+konfik_cli = KonfikCLI(konfik)
+print(konfik_cli.get())
 
 
 # # TODO
