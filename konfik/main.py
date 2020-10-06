@@ -94,7 +94,7 @@ class KonfikCLI:
     def get(self):
         if self.query is not None:
             query = self.query.split(".")
-        return self.get_by_path(self.konfik.config, query)
+            return self.get_by_path(self.konfik.config, query)
 
     @staticmethod
     def get_by_path(root, items):

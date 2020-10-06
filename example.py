@@ -10,6 +10,7 @@ konfik = Konfik(config_path=CONFIG_PATH)
 
 konfik.serialize()
 config = konfik.config
+
 print(config.title)
 print(config.owner.name)
 print(config.owner.dob)
