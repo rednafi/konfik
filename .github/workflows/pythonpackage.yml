@@ -31,7 +31,7 @@ jobs:
           poetry install
 
           echo "Checking black linter..."
-          black --check .
+          poetry run black --check .
 
           echo "Running pytest..."
-          pytest -v
+          poetry run pytest -v
