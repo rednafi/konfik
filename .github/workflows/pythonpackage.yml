@@ -3,7 +3,7 @@ name: Konfik Test
 on:
   push:
     branches:
-        - main
+      - main
 
 jobs:
   build:
@@ -32,8 +32,13 @@ jobs:
 
       - name: Check Black Formatting
         run: |
-          echo "Checking black linter..."
+          echo "Checking black formatting..."
           poetry run black --check .
+
+      - name: Check Isort Formatting
+        run: |
+          echo "Checking Isort formatting..."
+          poetry run isort --profile black --check
 
       - name: Run the Tests
         run: |
