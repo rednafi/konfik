@@ -95,7 +95,8 @@ class Konfik:
                         return config
 
                 except OSError:
-                    raise FileNotFoundError()
+                    console.print(f"FileNotFoundError: DOTENV file not found", style="bold red")
+                    sys.exit(1)
 
             elif suffix == "toml":
                 # FileNotFound & TomlDecodeError will be raised
@@ -103,8 +104,13 @@ class Konfik:
                     config = toml.load(config_path)
                     return config
 
+                except FileNotFoundError:
+                    console.print(f"FileNotFoundError: TOML file not found", style="bold red")
+                    sys.exit(1)
+
+
                 except toml.TomlDecodeError as exc:
-                    console.print(f"\nTomlDecodeError: {exc}\n", style="bold red")
+                    console.print(f"TomlDecodeError: {exc}\n", style="bold red")
                     sys.exit(1)
 
 
