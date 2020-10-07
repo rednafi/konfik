@@ -94,12 +94,18 @@ class KonfikCLI:
     def _get(self):
         if isinstance(self.args.get, str):
             query = self.args.get.split(".")
-            return self.get_by_path(self.konfik.config, query)
+            value = self.get_by_path(self.konfik.config, query)
+            if isinstance(value, DotMap):
+                value = dict(value)
+            return value
 
     def _show(self):
         if isinstance(self.args.show, str):
             query = self.args.show.split(".")
-            console.print(self.get_by_path(self.konfik.config, query))
+            value = self.get_by_path(self.konfik.config, query)
+            if isinstance(value, DotMap):
+                value = dict(value)
+            console.print(value)
 
     def _serialize(self):
         self.konfik.serialize()
@@ -131,3 +137,4 @@ def deploy_cli():
         konfik = Konfik("./config.toml")
         konfik_cli = KonfikCLI(konfik, args)
         konfik_cli.run_cli()
+
