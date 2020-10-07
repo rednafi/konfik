@@ -7,6 +7,8 @@ import toml
 from rich import traceback
 from rich.console import Console
 
+from . import __version__
+
 # Pretty traceback with Rich
 traceback.install(word_wrap=True)
 
@@ -110,6 +112,9 @@ class KonfikCLI:
     def _serialize(self):
         self.konfik.serialize()
 
+    def _version(self):
+        console.print(__version__)
+
     def run_cli(self):
         if self.args.get is not None:
             self._get()
@@ -117,6 +122,8 @@ class KonfikCLI:
             self._show()
         elif self.args.serialize is True:
             self._serialize()
+        elif self.args.version is True:
+            self._version()
 
     @staticmethod
     def get_by_path(root, items):
@@ -131,10 +138,12 @@ def deploy_cli():
     parser.add_argument(
         "--serialize", action="store_true", help="print the serialized config.toml"
     )
+    parser.add_argument(
+        "--version", action="store_true", help="print konfik-cli version number"
+    )
     args = parser.parse_args()
 
-    if args.get or args.show or args.serialize:
+    if args.get or args.show or args.serialize or args.version:
         konfik = Konfik("./config.toml")
         konfik_cli = KonfikCLI(konfik, args)
         konfik_cli.run_cli()
-
