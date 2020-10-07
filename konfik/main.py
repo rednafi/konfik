@@ -4,6 +4,7 @@ import sys
 from functools import reduce
 
 import toml
+from dotenv import dotenv_values, find_dotenv
 from rich import traceback
 from rich.console import Console
 
@@ -62,7 +63,7 @@ class DeepDotMap(DotMap):
 class Konfik:
     def __init__(
         self,
-        config_path,
+        config_path="config.toml",
         deep_dotmap=DeepDotMap,
     ):
         self._config = self._load_config(config_path)
@@ -76,14 +77,35 @@ class Konfik:
     def _load_config(config_path):
         """Load config.toml file."""
 
-        # FileNotFound & TomlDecodeError will be raised
-        try:
-            config = toml.load(config_path)
-            return config
+        # Making sure that pathlib.Path object are converted to string
+        if config_path:
+            config_path = str(config_path)
+            suffix = config_path.split(".")[-1]
 
-        except toml.TomlDecodeError as exc:
-            console.print(f"\nTomlDecodeError: {exc}\n", style="bold red")
-            sys.exit(1)
+            if suffix == "env":
+                try:
+                    # config = dotenv_values(config_path)
+                    # return config
+                    dotenv_file = find_dotenv(
+                        filename=config_path, raise_error_if_not_found=True
+                    )
+
+                    if dotenv_file:
+                        config = dotenv_values(dotenv_file)
+                        return config
+
+                except OSError:
+                    raise FileNotFoundError()
+
+            elif suffix == "toml":
+                # FileNotFound & TomlDecodeError will be raised
+                try:
+                    config = toml.load(config_path)
+                    return config
+
+                except toml.TomlDecodeError as exc:
+                    console.print(f"\nTomlDecodeError: {exc}\n", style="bold red")
+                    sys.exit(1)
 
 
 class KonfikCLI:
