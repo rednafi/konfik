@@ -7,7 +7,7 @@ import toml
 from rich import traceback
 from rich.console import Console
 
-from . import __version__
+from konfik import __version__
 
 # Pretty traceback with Rich
 traceback.install(word_wrap=True)
