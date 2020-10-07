@@ -1,11 +1,6 @@
 import pytest
 
-from konfik import __version__
 from konfik.main import DeepDotMap, DotMap
-
-
-def test_version():
-    assert __version__ == "0.1.0"
 
 
 def test_dotmap():

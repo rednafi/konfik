@@ -12,7 +12,7 @@ from konfik import __version__
 # Pretty traceback with Rich
 traceback.install(word_wrap=True)
 
-# Rich console object for JSON highlighting
+# Rich console object for object highlighting
 console = Console()
 
 
@@ -135,15 +135,22 @@ def deploy_cli():
     parser = argparse.ArgumentParser(description="Konfik CLI")
     parser.add_argument("--get", help="get variables from config.toml")
     parser.add_argument("--show", help="show variables from config.toml")
+    parser.add_argument("--path", help="add custom config.toml path")
     parser.add_argument(
         "--serialize", action="store_true", help="print the serialized config.toml"
     )
     parser.add_argument(
         "--version", action="store_true", help="print konfik-cli version number"
     )
+
     args = parser.parse_args()
 
     if args.get or args.show or args.serialize or args.version:
-        konfik = Konfik("./config.toml")
+        if args.path:
+            config_path = args.path
+        else:
+            config_path = "./config.toml"
+
+        konfik = Konfik(config_path)
         konfik_cli = KonfikCLI(konfik, args)
         konfik_cli.run_cli()
