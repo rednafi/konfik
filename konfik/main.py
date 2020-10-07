@@ -95,7 +95,9 @@ class Konfik:
                         return config
 
                 except OSError:
-                    console.print(f"FileNotFoundError: DOTENV file not found", style="bold red")
+                    console.print(
+                        f"FileNotFoundError: DOTENV file not found", style="bold red"
+                    )
                     sys.exit(1)
 
             elif suffix == "toml":
@@ -105,9 +107,10 @@ class Konfik:
                     return config
 
                 except FileNotFoundError:
-                    console.print(f"FileNotFoundError: TOML file not found", style="bold red")
+                    console.print(
+                        f"FileNotFoundError: TOML file not found", style="bold red"
+                    )
                     sys.exit(1)
-
 
                 except toml.TomlDecodeError as exc:
                     console.print(f"TomlDecodeError: {exc}\n", style="bold red")
@@ -126,6 +129,7 @@ class KonfikCLI:
             query = self.args.get.split(".")
             value = self.get_by_path(self.konfik.config, query)
             if isinstance(value, DotMap):
+                # Rich causes problem if the ouput type is DotMap
                 value = dict(value)
             return value
 
@@ -134,6 +138,7 @@ class KonfikCLI:
             query = self.args.show.split(".")
             value = self.get_by_path(self.konfik.config, query)
             if isinstance(value, DotMap):
+                # Rich causes problem if the output type is DotMap
                 value = dict(value)
             console.print(value)
 
