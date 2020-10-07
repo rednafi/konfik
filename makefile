@@ -21,3 +21,7 @@ lint: venvcheck
 
 example: venvcheck
 	@python example.py
+
+publish: venvcheck
+	@poetry build
+	@poetry publish

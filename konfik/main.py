@@ -101,11 +101,16 @@ class KonfikCLI:
             query = self.args.show.split(".")
             console.print(self.get_by_path(self.konfik.config, query))
 
+    def _serialize(self):
+        self.konfik.serialize()
+
     def run_cli(self):
         if self.args.get is not None:
             self._get()
         elif self.args.show is not None:
             self._show()
+        elif self.args.serialize is True:
+            self._serialize()
 
     @staticmethod
     def get_by_path(root, items):
@@ -117,9 +122,12 @@ def deploy_cli():
     parser = argparse.ArgumentParser(description="Konfik CLI")
     parser.add_argument("--get", help="get variables from config.toml")
     parser.add_argument("--show", help="show variables from config.toml")
+    parser.add_argument(
+        "--serialize", action="store_true", help="print the serialized config.toml"
+    )
     args = parser.parse_args()
 
-    if args.get or args.show:
+    if args.get or args.show or args.serialize:
         konfik = Konfik("./config.toml")
         konfik_cli = KonfikCLI(konfik, args)
         konfik_cli.run_cli()
