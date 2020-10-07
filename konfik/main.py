@@ -1,17 +1,12 @@
+import argparse
+import operator
+import sys
+from functools import reduce
+
 import toml
-import json
+from rich import traceback
 from rich.console import Console
 from rich.syntax import Syntax
-from rich import traceback
-
-# from rich import print
-import subprocess
-import shlex
-from functools import reduce
-import sys
-import argparse
-from functools import reduce
-import operator
 
 # Pretty traceback with Rich
 traceback.install(word_wrap=True)
@@ -72,16 +67,8 @@ class Konfik:
         self.config = deep_dotmap(self._config)()
 
     def serialize(self):
-        """Serializing TOML config to JSON."""
-
-        config_json = json.dumps(self._config, indent=2)
-        syntax = Syntax(
-            config_json,
-            "json",
-            background_color="default",
-            theme="monokai",
-        )
-        console.print(syntax)
+        """Serializing TOML config to Python dictionary."""
+        console.print(self._config)
 
     @staticmethod
     def _load_config(config_path):
@@ -96,10 +83,6 @@ class Konfik:
             console.print(f"\nTomlDecodeError: {exc}\n", style="bold red")
             sys.exit(1)
 
-    # @staticmethod
-    # def _run(cmd):
-    #     subprocess.check_call(shlex.split(cmd))
-
 
 class KonfikCLI:
     def __init__(self, konfik):
@@ -111,7 +94,7 @@ class KonfikCLI:
     def get(self):
         if self.query is not None:
             query = self.query.split(".")
-        return self.get_by_path(self.konfik.config, query)
+            return self.get_by_path(self.konfik.config, query)
 
     @staticmethod
     def get_by_path(root, items):
@@ -122,8 +105,3 @@ class KonfikCLI:
 # konfik = Konfik("./config.toml")
 # konfik_cli = KonfikCLI(konfik)
 # print(konfik_cli.get())
-
-
-# # TODO
-#
-# #

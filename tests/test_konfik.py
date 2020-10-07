@@ -1,6 +1,7 @@
-from konfik import __version__
-from konfik.main import DotMap, DeepDotMap
 import pytest
+
+from konfik import __version__
+from konfik.main import DeepDotMap, DotMap
 
 
 def test_version():

@@ -16,6 +16,7 @@ test: venvcheck
 
 lint: venvcheck
 	@black --line-length 88 --exclude '.venv|.tox'  .
+	@isort --profile black .
 
 example: venvcheck
 	@python -m example
