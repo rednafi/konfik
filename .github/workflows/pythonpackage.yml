@@ -38,7 +38,7 @@ jobs:
       - name: Check Isort Formatting
         run: |
           echo "Checking Isort formatting..."
-          poetry run isort --profile black --check
+          poetry run isort --profile black --check .
 
       - name: Run the Tests
         run: |
