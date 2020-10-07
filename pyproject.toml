@@ -8,6 +8,7 @@ authors = ["rednafi <redowan.nafi@gmail.com>"]
 python = "^3.6"
 rich = "^8.0.0"
 toml = "^0.10.1"
+python-dotenv = "^0.14.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
