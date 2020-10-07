@@ -6,8 +6,6 @@ from functools import reduce
 import toml
 from rich import traceback
 from rich.console import Console
-from rich.syntax import Syntax
-from rich import print
 
 # Pretty traceback with Rich
 traceback.install(word_wrap=True)
@@ -115,12 +113,13 @@ class KonfikCLI:
         return reduce(operator.getitem, items, root)
 
 
-parser = argparse.ArgumentParser(description="Konfik CLI")
-parser.add_argument("--get", help="get variables from config.toml")
-parser.add_argument("--show", help="show variables from config.toml")
-args = parser.parse_args()
+def deploy_cli():
+    parser = argparse.ArgumentParser(description="Konfik CLI")
+    parser.add_argument("--get", help="get variables from config.toml")
+    parser.add_argument("--show", help="show variables from config.toml")
+    args = parser.parse_args()
 
-if args.get or args.show:
-    konfik = Konfik("./config.toml")
-    konfik_cli = KonfikCLI(konfik, args)
-    konfik_cli.run_cli()
+    if args.get or args.show:
+        konfik = Konfik("./config.toml")
+        konfik_cli = KonfikCLI(konfik, args)
+        konfik_cli.run_cli()
