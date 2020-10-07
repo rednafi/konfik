@@ -7,6 +7,7 @@ import toml
 from rich import traceback
 from rich.console import Console
 from rich.syntax import Syntax
+from rich import print
 
 # Pretty traceback with Rich
 traceback.install(word_wrap=True)
@@ -21,6 +22,7 @@ class DotMap(dict):
     """
 
     def __getattr__(self, attr):
+        # I should probably raise AttributeError here but I don't want to change dict's behavior
         return self[attr]
 
     def __setattr__(self, key, val):
@@ -85,16 +87,27 @@ class Konfik:
 
 
 class KonfikCLI:
-    def __init__(self, konfik):
-        parser = argparse.ArgumentParser(description="Konfik CLI")
-        parser.add_argument("--get", help="Get variables from config.toml")
-        self.query = parser.parse_args().get
-        self.konfik = konfik
+    """Access and show config variables using CLI."""
 
-    def get(self):
-        if self.query is not None:
-            query = self.query.split(".")
+    def __init__(self, konfik, args):
+        self.konfik = konfik
+        self.args = args
+
+    def _get(self):
+        if isinstance(self.args.get, str):
+            query = self.args.get.split(".")
             return self.get_by_path(self.konfik.config, query)
+
+    def _show(self):
+        if isinstance(self.args.show, str):
+            query = self.args.show.split(".")
+            console.print(self.get_by_path(self.konfik.config, query))
+
+    def run_cli(self):
+        if self.args.get is not None:
+            self._get()
+        elif self.args.show is not None:
+            self._show()
 
     @staticmethod
     def get_by_path(root, items):
@@ -102,6 +115,12 @@ class KonfikCLI:
         return reduce(operator.getitem, items, root)
 
 
-# konfik = Konfik("./config.toml")
-# konfik_cli = KonfikCLI(konfik)
-# print(konfik_cli.get())
+parser = argparse.ArgumentParser(description="Konfik CLI")
+parser.add_argument("--get", help="get variables from config.toml")
+parser.add_argument("--show", help="show variables from config.toml")
+args = parser.parse_args()
+
+if args.get or args.show:
+    konfik = Konfik("./config.toml")
+    konfik_cli = KonfikCLI(konfik, args)
+    konfik_cli.run_cli()
