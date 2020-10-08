@@ -1,7 +1,11 @@
-# konfik
-Experimentation with config management
+<div align="center">
 
-![konfik](https://user-images.githubusercontent.com/30027932/95397864-2212d980-0926-11eb-9d86-d30d42631f76.png)
+<img src="https://user-images.githubusercontent.com/30027932/95400681-0a8b1f00-092d-11eb-9868-dfa8ff496565.png" alt="konfik-logo">
+<br><br>
+>> <i>The Strangely Familiar Config Parser</i> <<
+
+</div>
+
 
 ## TODO
 * Write tests for Konfik and KonfikCLI class
