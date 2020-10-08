@@ -10,7 +10,7 @@
 </div>
 
 
-## Description
+## 📖 Description
 
 Konfik is a simple configuration parser that helps you access your TOML or DOTENV config variables using dot (.) notation. This enables you to do this:
 
@@ -24,7 +24,7 @@ instead of this:
 foo_bar_bazz = config["FOO"]["BAR"]["BAZZ"]
 ```
 
-## Installation
+## ⚙️ Installation
 
 Install Konfik via pip:
 
@@ -33,7 +33,7 @@ pip install konfik
 ```
 
 
-## Example
+## 💡 Examples
 
 Let's see how you can parse a TOML config file and access the variables there. For demonstration, we'll be using the following `config.toml` file:
 
@@ -143,13 +143,13 @@ If you're using a config that's not named as `config.toml` then you can deliver 
 konfik --path settings/example_config.env --show name
 ```
 
-## Why
+## 🙋 Why
 
 While working with machine learning models, I wanted an easier way to tune the model parameters without mutating the Python files. I needed something that would simply enable me to access tuple or dictionary data structures from a config file. I couldn't find anything that doesn't try to do a gazillion of other kinds of stuff or doesn't come with the overhead of a significant learning curve.
 
 Neither DOTENV nor YAML catered to my need as I was after something that gives me the ability to store complex data structures without a lot of fuss -- so TOML it is. However, since DOTENV is so ubiquitous for config management, Konfik supports that too. Also, not having to write angle brackets ([""]) to access dictionary values is nice!
 
-## Contribution Guidelines
+## 🎉 Contribution Guidelines
 
 Currently, Konfik doesn't support `.yaml` out of the box. Maybe that's something you'd like to take a jab at. To do so,
 
