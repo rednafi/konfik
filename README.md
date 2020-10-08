@@ -1,7 +1,7 @@
 <div align="center">
 
 <img src="https://user-images.githubusercontent.com/30027932/95400681-0a8b1f00-092d-11eb-9868-dfa8ff496565.png" alt="konfik-logo">
-<br><br>
+
 <strong>>> <i>The Strangely Familiar Config Parser</i> <<</strong>
 
 </div>
