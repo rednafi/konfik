@@ -124,15 +124,6 @@ class KonfikCLI:
         self.konfik = konfik
         self.args = args
 
-    def _get(self):
-        if isinstance(self.args.get, str):
-            query = self.args.get.split(".")
-            value = self.get_by_path(self.konfik.config, query)
-            if isinstance(value, DotMap):
-                # Rich causes problem if the ouput type is DotMap
-                value = dict(value)
-            return value
-
     def _show(self):
         if isinstance(self.args.show, str):
             query = self.args.show.split(".")
@@ -149,9 +140,7 @@ class KonfikCLI:
         console.print(__version__)
 
     def run_cli(self):
-        if self.args.get is not None:
-            self._get()
-        elif self.args.show is not None:
+        if self.args.show is not None:
             self._show()
         elif self.args.serialize is True:
             self._serialize()
@@ -166,7 +155,6 @@ class KonfikCLI:
 
 def deploy_cli():
     parser = argparse.ArgumentParser(description="Konfik CLI")
-    parser.add_argument("--get", help="get variables from config.toml")
     parser.add_argument("--show", help="show variables from config.toml")
     parser.add_argument("--path", help="add custom config.toml path")
     parser.add_argument(
@@ -178,7 +166,7 @@ def deploy_cli():
 
     args = parser.parse_args()
 
-    if args.get or args.show or args.serialize or args.version:
+    if args.show or args.serialize or args.version:
         if args.path:
             config_path = args.path
         else:
