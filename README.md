@@ -162,7 +162,7 @@ Currently, Konfik doesn't support `.yaml` out of the box. Maybe that's something
     ```
 * Make your changes to the `konfik/main.py` file
 
-* Run the tests via:
+* Run the tests via the following command. Make sure you've Python 3.6 - Python 3.9 installed, otherwise tox would through an error.
     ```
     tox
     ```
