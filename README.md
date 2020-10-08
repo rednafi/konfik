@@ -3,18 +3,22 @@
 <img src="https://user-images.githubusercontent.com/30027932/95400681-0a8b1f00-092d-11eb-9868-dfa8ff496565.png" alt="konfik-logo">
 
 <strong>>> <i>The Strangely Familiar Config Parser</i> <<</strong>
-
+<br></br>
+[![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg?style=flat-square&logo=appveyor)](https://www.python.org/)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg?style=flat-square&logo=appveyor)](https://github.com/python/black)
+[![MIT license](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square&logo=appveyor)](./LICENSE)
 </div>
+
 
 ## Description
 
-Konfik is a simple configuration parser that helps you access your TOML or DOTENV config variables using dot (.) notation. This enables you to do this —
+Konfik is a simple configuration parser that helps you access your TOML or DOTENV config variables using dot (.) notation. This enables you to do this:
 
 ```python
 foo_bar_bazz = config.FOO.BAR.BAZZ
 ```
 
-instead of this —
+instead of this:
 
 ```python
 foo_bar_bazz = config["FOO"]["BAR"]["BAZZ"]
@@ -55,7 +59,7 @@ dob = 1979-05-27T07:32:00-08:00 # First class dates
 data = [ ["gamma", "delta"], [1, 2] ]
 ```
 
-To parse this in Python
+To parse this in Python:
 
 ```python
 from pathlib import Path
@@ -106,7 +110,7 @@ The `.serialize()` method will print your entire config file as a colorized Pyth
 }
 ```
 
-Konfik also exposes a few command line options for you to instrospect you config file and variables. Run:
+Konfik also exposes a few command-line options for you to introspect your config file and variables. Run:
 
 ```
 konfik --help
@@ -121,8 +125,49 @@ Konfik CLI
 
 optional arguments:
   -h, --help   show this help message and exit
-  --show SHOW  show variables from config.toml
-  --path PATH  add custom config.toml path
-  --serialize  print the serialized config.toml
+  --show SHOW  show variables from config file
+  --path PATH  add custom config file path
+  --serialize  print the serialized config file
   --version    print konfik-cli version number
 ```
+
+To inspect the value of a specific variable in a `config.toml` file you can run:
+
+```
+konfik --show servers.alpha.ip
+```
+
+If you're using a config that's not named as `config.toml` then you can deliver the path using the `--path` argument like this:
+
+```
+konfik --path settings/example_config.env --show name
+```
+
+## Why
+
+While working with machine learning models, I wanted an easier way to tune the model parameters without mutating the Python files. I needed something that would simply enable me to access tuple or dictionary data structures from a config file. I couldn't find anything that doesn't try to do a gazillion of other kinds of stuff or doesn't come with the overhead of a significant learning curve.
+
+Neither DOTENV nor YAML catered to my need as I was after something that gives me the ability to store complex data structures without a lot of fuss -- so TOML it is. However, since DOTENV is so ubiquitous for config management, Konfik supports that too. Also, not having to write angle brackets ([""]) to access dictionary values is nice!
+
+## Contribution Guidelines
+
+Currently, Konfik doesn't support `.yaml` out of the box. Maybe that's something you'd like to take a jab at. To do so,
+
+* Clone the repo
+* Spin up and activate your virtual environment. You can use anything between Python 3.6 to Python 3.9.
+* Install [poetry](https://python-poetry.org/docs/#installation)
+* Install the dependencies via:
+    ```
+    poetry install
+    ```
+* Make your changes to the `konfik/main.py` file
+
+* Run the tests via:
+    ```
+    tox
+    ```
+* Write a simple unit test for your change
+* Run the linter via:
+    ```
+    make linter
+    ```

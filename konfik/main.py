@@ -155,10 +155,10 @@ class KonfikCLI:
 
 def deploy_cli():
     parser = argparse.ArgumentParser(description="Konfik CLI")
-    parser.add_argument("--show", help="show variables from config.toml")
-    parser.add_argument("--path", help="add custom config.toml path")
+    parser.add_argument("--show", help="show variables from config file")
+    parser.add_argument("--path", help="add custom config file path")
     parser.add_argument(
-        "--serialize", action="store_true", help="print the serialized config.toml"
+        "--serialize", action="store_true", help="print the serialized config file"
     )
     parser.add_argument(
         "--version", action="store_true", help="print konfik-cli version number"
