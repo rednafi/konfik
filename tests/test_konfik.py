@@ -1,9 +1,11 @@
 import pytest
 
-from konfik.main import DeepDotMap, DotMap
+from konfik.main import DeepDotMap, DotMap, Konfik
 
 
 def test_dotmap():
+    """Test the DotMap class."""
+
     # Test dot notation features
     d = {
         "j": {
@@ -54,6 +56,8 @@ def test_dotmap():
 
 
 def test_deep_dotmap():
+    """Test the DeepDotMap class that recursively applies the DotMap class."""
+
     # Test dot notation features
     d = {
         "j": {
@@ -112,3 +116,71 @@ def test_deep_dotmap():
     del d["j"]["m"]
     with pytest.raises(KeyError):
         d["j"]["m"]
+
+
+def test_konfik(tmp_path):
+    """Test the Konfik class."""
+
+    toml_string = """
+    # This is a TOML document.
+
+    title = "TOML Example"
+
+    [owner]
+    name = "Tom Preston-Werner"
+    dob = 1979-05-27T07:32:00-08:00
+
+    [database]
+    server = "192.168.1.1"
+    ports = [ 8001, 8001, 8002 ]
+    connection_max = 5000
+    enabled = true
+
+    [servers]
+    [servers.alpha]
+    ip = "10.0.0.1"
+    dc = "eqdc10"
+
+    [servers.beta]
+    ip = "10.0.0.2"
+    dc = "eqdc10"
+
+    [clients]
+    data = [ ["gamma", "delta"], [1, 2] ]
+
+    """
+    # Making a temporary directory to hold the toml file
+    # https://docs.pytest.org/en/stable/tmpdir.html#the-tmp-path-fixture
+    tmp_dir = tmp_path / "sub"
+    tmp_dir.mkdir()
+
+    # So the actual directory would be tmp_path/sub/test_config.toml
+    test_toml_path = tmp_dir / "test_config.toml"
+    test_toml_path.write_text(toml_string)
+
+    # Load toml from the test toml path
+    konfik = Konfik(config_path=test_toml_path)
+
+    # Make sure the serializer works
+    konfik.serialize()
+
+    # Test variable access with dot notation
+    config = konfik.config
+
+    assert config.title == "TOML Example"
+    assert config.owner.name == "Tom Preston-Werner"
+    assert config.database == {
+        "server": "192.168.1.1",
+        "ports": [8001, 8001, 8002],
+        "connection_max": 5000,
+        "enabled": True,
+    }
+    assert config.database.server == "192.168.1.1"
+    assert config.database.ports == [8001, 8001, 8002]
+    assert config.database.connection_max == 5000
+    assert config.database.enabled is True
+
+    assert config.servers.alpha == {"ip": "10.0.0.1", "dc": "eqdc10"}
+    assert config.servers.beta.dc == "eqdc10"
+
+    assert config.clients.data == [["gamma", "delta"], [1, 2]]

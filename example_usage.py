@@ -26,7 +26,7 @@ config_env = konfik_env.config
 
 # Access and print the variables in toml file
 print(config_toml.title)
-print(config_toml.owner.name)
+print(config_toml.owner)
 print(config_toml.owner.dob)
 print(config_toml.database.ports)
 print(config_toml.servers.alpha.ip)
