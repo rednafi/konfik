@@ -1,6 +1,6 @@
 # This is a TOML document.
 
-title = "TOML Example"
+title = "TOML Example
 
 [owner]
 name = "Tom Preston-Werner"
@@ -23,4 +23,3 @@ enabled = true
 
 [clients]
 data = [ ["gamma", "delta"], [1, 2] ]
-

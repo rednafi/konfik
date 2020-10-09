@@ -62,19 +62,16 @@ class DeepDotMap(DotMap):
 
 class Konfik:
     def __init__(
-        self,
-        config_path="config.toml",
-        deep_dotmap=DeepDotMap,
+        self, config_path="config.toml", deep_dotmap=DeepDotMap, from_terminal=False
     ):
-        self._config = self._load_config(config_path)
+        self._config = self._load_config(config_path, from_terminal=from_terminal)
         self.config = deep_dotmap(self._config)()
 
     def serialize(self):
         """Serializing TOML config to Python dictionary."""
         console.print(self._config)
 
-    @staticmethod
-    def _load_config(config_path):
+    def _load_config(self, config_path, from_terminal):
         """Load config.toml file."""
 
         # Making sure that pathlib.Path object are converted to string
@@ -83,38 +80,62 @@ class Konfik:
             suffix = config_path.split(".")[-1]
 
             if suffix == "env":
-                try:
-                    # config = dotenv_values(config_path)
-                    # return config
-                    dotenv_file = find_dotenv(
-                        filename=config_path, raise_error_if_not_found=True
-                    )
-
-                    if dotenv_file:
-                        config = dotenv_values(dotenv_file)
-                        return config
-
-                except OSError:
-                    console.print(
-                        f"FileNotFoundError: DOTENV file not found", style="bold red"
-                    )
-                    sys.exit(1)
+                return self._load_env(config_path, from_terminal)
 
             elif suffix == "toml":
-                # FileNotFound & TomlDecodeError will be raised
-                try:
-                    config = toml.load(config_path)
-                    return config
+                return self._load_toml(config_path, from_terminal)
 
-                except FileNotFoundError:
-                    console.print(
-                        f"FileNotFoundError: TOML file not found", style="bold red"
-                    )
-                    sys.exit(1)
+            else:
+                if not from_terminal:
+                    raise NotImplementedError(f"Config type {suffix} not supported")
 
-                except toml.TomlDecodeError as exc:
-                    console.print(f"TomlDecodeError: {exc}\n", style="bold red")
-                    sys.exit(1)
+                console.print(f"Config type {suffix} not supported", style="bold_red")
+                sys.exit(1)
+
+    @staticmethod
+    def _load_env(config_path, from_terminal):
+        """Load .env file"""
+
+        try:
+            # Instead of using load_dotenv(), this is done to avoid recursively searching for dotenv file.
+            # There is no element of surprise. If the file is not found in the explicit path, this will raise an error!
+            dotenv_file = find_dotenv(
+                filename=config_path, raise_error_if_not_found=True
+            )
+
+            if dotenv_file:
+                config = dotenv_values(dotenv_file)
+                return config
+
+        except OSError:
+            if not from_terminal:
+                raise FileNotFoundError("DOTENV file not found") from None
+
+            console.print(f"FileNotFoundError: DOTENV file not found", style="bold red")
+            sys.exit(1)
+
+    @staticmethod
+    def _load_toml(config_path, from_terminal):
+        """Load .toml file."""
+
+        # FileNotFound & TomlDecodeError will be raised
+        try:
+            config = toml.load(config_path)
+            return config
+
+        except FileNotFoundError:
+            if not from_terminal:
+                raise FileNotFoundError("TOML file not found") from None
+
+            console.print(f"FileNotFoundError: TOML file not found", style="bold red")
+            sys.exit(1)
+
+        except toml.TomlDecodeError as exc:
+            if not from_terminal:
+                raise
+
+            console.print(f"TomlDecodeError: {exc}\n", style="bold red")
+            sys.exit(1)
 
 
 class KonfikCLI:
@@ -172,6 +193,6 @@ def deploy_cli():
         else:
             config_path = "./config.toml"
 
-        konfik = Konfik(config_path)
+        konfik = Konfik(config_path, from_terminal=True)
         konfik_cli = KonfikCLI(konfik, args)
         konfik_cli.run_cli()

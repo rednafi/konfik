@@ -1,8 +1,25 @@
 [tool.poetry]
 name = "konfik"
-version = "0.1.5"
-description = ""
+version = "0.1.6"
+description = "The Strangely Familiar Config Parser"
 authors = ["rednafi <redowan.nafi@gmail.com>"]
+
+# New attributes
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/rednafi/konfik"
+repository = "https://github.com/rednafi/konfik"
+keywords = ["config", "configuration", "toml", "dotenv", "yaml"]
+classifiers = [
+    "Environment :: Console",
+    "Operating System :: OS Independent",
+    "Topic :: Software Development :: Documentation",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: Quality Assurance",
+]
+include = [
+    "LICENSE",
+]
 
 [tool.poetry.dependencies]
 python = "^3.6"
@@ -22,7 +39,7 @@ konfik = 'konfik.main:deploy_cli'
 
 # linters
 [tool.black]
-l = 88
+l = 120
 
 [tool.isort]
 profile = "black"
