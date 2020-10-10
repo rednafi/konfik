@@ -11,6 +11,7 @@ from rich.console import Console
 from konfik import __version__
 
 # Pretty traceback with Rich
+# This is causing slowdown when keyerror is raised. Remove rich in the next version
 traceback.install(word_wrap=True)
 
 # Rich console object for object highlighting
@@ -93,28 +94,6 @@ class Konfik:
                 sys.exit(1)
 
     @staticmethod
-    def _load_env(config_path, from_terminal):
-        """Load .env file"""
-
-        try:
-            # Instead of using load_dotenv(), this is done to avoid recursively searching for dotenv file.
-            # There is no element of surprise. If the file is not found in the explicit path, this will raise an error!
-            dotenv_file = find_dotenv(
-                filename=config_path, raise_error_if_not_found=True
-            )
-
-            if dotenv_file:
-                config = dotenv_values(dotenv_file)
-                return config
-
-        except OSError:
-            if not from_terminal:
-                raise FileNotFoundError("DOTENV file not found") from None
-
-            console.print(f"FileNotFoundError: DOTENV file not found", style="bold red")
-            sys.exit(1)
-
-    @staticmethod
     def _load_toml(config_path, from_terminal):
         """Load .toml file."""
 
@@ -135,6 +114,28 @@ class Konfik:
                 raise
 
             console.print(f"TomlDecodeError: {exc}\n", style="bold red")
+            sys.exit(1)
+
+    @staticmethod
+    def _load_env(config_path, from_terminal):
+        """Load .env file"""
+
+        try:
+            # Instead of using load_dotenv(), this is done to avoid recursively searching for dotenv file.
+            # There is no element of surprise. If the file is not found in the explicit path, this will raise an error!
+            dotenv_file = find_dotenv(
+                filename=config_path, raise_error_if_not_found=True
+            )
+
+            if dotenv_file:
+                config = dotenv_values(dotenv_file)
+                return config
+
+        except OSError:
+            if not from_terminal:
+                raise FileNotFoundError("DOTENV file not found") from None
+
+            console.print(f"FileNotFoundError: DOTENV file not found", style="bold red")
             sys.exit(1)
 
 

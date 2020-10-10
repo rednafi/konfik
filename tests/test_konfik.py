@@ -118,8 +118,8 @@ def test_deep_dotmap():
         d["j"]["m"]
 
 
-def test_konfik(tmp_path):
-    """Test the Konfik class."""
+def test_konfik_toml(tmp_path):
+    """Test the Konfik class for toml."""
 
     toml_string = """
     # This is a TOML document.
@@ -184,3 +184,49 @@ def test_konfik(tmp_path):
     assert config.servers.beta.dc == "eqdc10"
 
     assert config.clients.data == [["gamma", "delta"], [1, 2]]
+
+
+def test_konfik_env(tmp_path):
+    """Test the Konfik class for dotenv file."""
+
+    env_string = """
+    # This is an example .env document
+
+    TITLE            = DOTENV_EXAMPLE
+    NAME             = TOM
+    DOB              = 1994-03-24T07:32:00-08:00
+    SERVER           = 192.168.1.1
+    PORT             = 8001
+    CONNECTION_MAX   = 5000
+    ENABLED          = True
+    IP               = 10.0.0.1
+    DC               = eqdc10
+
+    """
+    # Making a temporary directory to hold the env file
+    # https://docs.pytest.org/en/stable/tmpdir.html#the-tmp-path-fixture
+    tmp_dir = tmp_path / "sub"
+    tmp_dir.mkdir()
+
+    # So the actual directory would be tmp_path/sub/test_config.toml
+    test_env_path = tmp_dir / "test_config.env"
+    test_env_path.write_text(env_string)
+
+    # Load toml from the test toml path
+    konfik = Konfik(config_path=test_env_path)
+
+    # Make sure the serializer works
+    konfik.serialize()
+
+    # Test variable access with dot notation
+    config = konfik.config
+
+    assert config.TITLE == "DOTENV_EXAMPLE"
+    assert config.NAME == "TOM"
+    assert config.DOB == "1994-03-24T07:32:00-08:00"
+    assert config.SERVER == "192.168.1.1"
+    assert config.PORT == "8001"
+    assert config.CONNECTION_MAX == "5000"
+    assert config.ENABLED == "True"
+    assert config.IP == "10.0.0.1"
+    assert config.DC == "eqdc10"

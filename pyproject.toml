@@ -39,7 +39,7 @@ konfik = 'konfik.main:deploy_cli'
 
 # linters
 [tool.black]
-l = 120
+l = 88
 
 [tool.isort]
 profile = "black"
