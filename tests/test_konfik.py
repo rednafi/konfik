@@ -311,5 +311,3 @@ def test_konfik_json(tmp_path):
     assert config.servers.beta.dc == "eqdc10"
 
     assert config.clients.data == [["gamma", "delta"], [1, 2]]
-
-

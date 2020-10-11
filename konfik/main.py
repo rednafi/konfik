@@ -6,14 +6,9 @@ from functools import reduce
 import toml
 import yaml
 from dotenv import dotenv_values, find_dotenv
-from rich import traceback
 from rich.console import Console
 
 from konfik import __version__
-
-# Pretty traceback with Rich
-# This is causing slowdown when keyerror is raised. Remove rich in the next version
-traceback.install(word_wrap=True)
 
 # Rich console object for object highlighting
 console = Console()
