@@ -1,9 +1,10 @@
 import argparse
+import json
 import operator
-import sys
 from functools import reduce
 
 import toml
+import yaml
 from dotenv import dotenv_values, find_dotenv
 from rich import traceback
 from rich.console import Console
@@ -62,17 +63,15 @@ class DeepDotMap(DotMap):
 
 
 class Konfik:
-    def __init__(
-        self, config_path="config.toml", deep_dotmap=DeepDotMap, from_terminal=False
-    ):
-        self._config = self._load_config(config_path, from_terminal=from_terminal)
+    def __init__(self, config_path="config.toml", deep_dotmap=DeepDotMap):
+        self._config = self._load_config(config_path)
         self.config = deep_dotmap(self._config)()
 
     def serialize(self):
         """Serializing TOML config to Python dictionary."""
         console.print(self._config)
 
-    def _load_config(self, config_path, from_terminal):
+    def _load_config(self, config_path):
         """Load config.toml file."""
 
         # Making sure that pathlib.Path object are converted to string
@@ -81,20 +80,49 @@ class Konfik:
             suffix = config_path.split(".")[-1]
 
             if suffix == "env":
-                return self._load_env(config_path, from_terminal)
+                return self._load_env(config_path)
+
+            elif suffix == "json":
+                return self._load_json(config_path)
 
             elif suffix == "toml":
-                return self._load_toml(config_path, from_terminal)
+                return self._load_toml(config_path)
+
+            elif suffix == "yaml" or suffix == "yml":
+                return self._load_yaml(config_path)
 
             else:
-                if not from_terminal:
-                    raise NotImplementedError(f"Config type {suffix} not supported")
-
-                console.print(f"Config type {suffix} not supported", style="bold_red")
-                sys.exit(1)
+                raise NotImplementedError(f"Config type {suffix} not supported")
 
     @staticmethod
-    def _load_toml(config_path, from_terminal):
+    def _load_env(config_path):
+        """Load .env file"""
+
+        try:
+            # Instead of using load_dotenv(), this is done to avoid recursively searching for dotenv file.
+            # There is no element of surprise. If the file is not found in the explicit path, this will raise an error!
+            dotenv_file = find_dotenv(
+                filename=config_path, raise_error_if_not_found=True, usecwd=True
+            )
+
+            if dotenv_file:
+                config = dotenv_values(dotenv_file)
+                return config
+
+        except OSError:
+            raise FileNotFoundError("DOTENV file not found") from None
+
+    @staticmethod
+    def _load_json(config_path):
+        try:
+            with open(config_path) as f:
+                config = json.load(f)
+                return config
+        except FileNotFoundError:
+            raise FileNotFoundError("JSON file not found")
+
+    @staticmethod
+    def _load_toml(config_path):
         """Load .toml file."""
 
         # FileNotFound & TomlDecodeError will be raised
@@ -103,40 +131,16 @@ class Konfik:
             return config
 
         except FileNotFoundError:
-            if not from_terminal:
-                raise FileNotFoundError("TOML file not found") from None
-
-            console.print(f"FileNotFoundError: TOML file not found", style="bold red")
-            sys.exit(1)
-
-        except toml.TomlDecodeError as exc:
-            if not from_terminal:
-                raise
-
-            console.print(f"TomlDecodeError: {exc}\n", style="bold red")
-            sys.exit(1)
+            raise FileNotFoundError("TOML file not found") from None
 
     @staticmethod
-    def _load_env(config_path, from_terminal):
-        """Load .env file"""
-
+    def _load_yaml(config_path):
         try:
-            # Instead of using load_dotenv(), this is done to avoid recursively searching for dotenv file.
-            # There is no element of surprise. If the file is not found in the explicit path, this will raise an error!
-            dotenv_file = find_dotenv(
-                filename=config_path, raise_error_if_not_found=True
-            )
-
-            if dotenv_file:
-                config = dotenv_values(dotenv_file)
+            with open(config_path) as f:
+                config = yaml.full_load(f)
                 return config
-
-        except OSError:
-            if not from_terminal:
-                raise FileNotFoundError("DOTENV file not found") from None
-
-            console.print(f"FileNotFoundError: DOTENV file not found", style="bold red")
-            sys.exit(1)
+        except FileNotFoundError:
+            raise FileNotFoundError("YAML file not found")
 
 
 class KonfikCLI:
@@ -194,6 +198,6 @@ def deploy_cli():
         else:
             config_path = "./config.toml"
 
-        konfik = Konfik(config_path, from_terminal=True)
+        konfik = Konfik(config_path)
         konfik_cli = KonfikCLI(konfik, args)
         konfik_cli.run_cli()

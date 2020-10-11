@@ -62,28 +62,27 @@ data = [ ["gamma", "delta"], [1, 2] ]
 To parse this in Python:
 
 ```python
-from pathlib import Path
 from konfik import Konfik
 
-BASE_DIR = Path(".").parent
+# Define the config path
+CONFIG_PATH_TOML = "config.toml"
 
-# Define the config paths
-CONFIG_PATH_TOML = BASE_DIR / "example_config.toml"
-
-# Initialize the Konfik class
+# Initialize the konfik class
 konfik = Konfik(config_path=CONFIG_PATH_TOML)
 
-# Serialize and print the config file
+# Serialize and print the confile file
 konfik.serialize()
 
-# Access the serialized config object
-config = konfik.config
+# Get the configuration dictionary from the konfik class
+config_toml = konfik.config
 
-# Use the serialized config object to acess the config variable via dot notation
-title = config.title
-name = config.owner.name
-server_alpha_ip = config.servers.alpha.ip
-clients = config.client
+# Access and print the variables
+title = config_toml.title
+owner = config_toml.owner
+dob = config_toml.owner.dob
+database = config_toml.database.ports
+server_ip = config_toml.servers.alpha.ip
+clients = config_toml.clients
 ```
 
 The `.serialize()` method will print your entire config file as a colorized Python dictionary object like this:
@@ -147,11 +146,9 @@ konfik --path settings/example_config.env --show name
 
 While working with machine learning models, I wanted an easier way to tune the model parameters without mutating the Python files. I needed something that would simply enable me to access tuple or dictionary data structures from a config file. I couldn't find anything that doesn't try to do a gazillion of other kinds of stuff or doesn't come with the overhead of a significant learning curve.
 
-Neither DOTENV nor YAML catered to my need as I was after something that gives me the ability to store complex data structures without a lot of fuss -- so TOML it is. However, since DOTENV is so ubiquitous for config management, Konfik supports that too. Also, not having to write angle brackets ([""]) to access dictionary values is nice!
+Neither DOTENV nor YAML catered to my need as I was after something that gives me the ability to store complex data structures without a lot of fuss -- so TOML it is. However,Konfik also supports DOTENV, JSON and YAML. Also, not having to write angle brackets ([""]) to access dictionary values is nice!
 
 ## 🎉 Contribution Guidelines
-
-Currently, Konfik doesn't support `.yaml` out of the box. Maybe that's something you'd like to take a jab at. To do so,
 
 * Clone the repo
 * Spin up and activate your virtual environment. You can use anything between Python 3.6 to Python 3.9.

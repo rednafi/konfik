@@ -230,3 +230,86 @@ def test_konfik_env(tmp_path):
     assert config.ENABLED == "True"
     assert config.IP == "10.0.0.1"
     assert config.DC == "eqdc10"
+
+
+def test_konfik_json(tmp_path):
+    """Test the Konfik class for json."""
+
+    json_string = """
+        {
+        "title": "JSON Example",
+        "owner": {
+            "name": "Tom Preston-Werner",
+            "dob": "1979-05-27"
+        },
+        "database": {
+            "server": "192.168.1.1",
+            "ports": [
+                8001,
+                8001,
+                8002
+            ],
+            "connection_max": 5000,
+            "enabled": true
+        },
+        "servers": {
+            "alpha": {
+                "ip": "10.0.0.1",
+                "dc": "eqdc10"
+            },
+            "beta": {
+                "ip": "10.0.0.2",
+                "dc": "eqdc10"
+            }
+        },
+        "clients": {
+            "data": [
+                [
+                    "gamma",
+                    "delta"
+                ],
+                [
+                    1,
+                    2
+                ]
+            ]
+        }
+    }
+    """
+    # Making a temporary directory to hold the toml file
+    # https://docs.pytest.org/en/stable/tmpdir.html#the-tmp-path-fixture
+    tmp_dir = tmp_path / "sub"
+    tmp_dir.mkdir()
+
+    # So the actual directory would be tmp_path/sub/test_config.toml
+    test_json_path = tmp_dir / "test_config.json"
+    test_json_path.write_text(json_string)
+
+    # Load toml from the test toml path
+    konfik = Konfik(config_path=test_json_path)
+
+    # Make sure the serializer works
+    konfik.serialize()
+
+    # Test variable access with dot notation
+    config = konfik.config
+
+    assert config.title == "JSON Example"
+    assert config.owner.name == "Tom Preston-Werner"
+    assert config.database == {
+        "server": "192.168.1.1",
+        "ports": [8001, 8001, 8002],
+        "connection_max": 5000,
+        "enabled": True,
+    }
+    assert config.database.server == "192.168.1.1"
+    assert config.database.ports == [8001, 8001, 8002]
+    assert config.database.connection_max == 5000
+    assert config.database.enabled is True
+
+    assert config.servers.alpha == {"ip": "10.0.0.1", "dc": "eqdc10"}
+    assert config.servers.beta.dc == "eqdc10"
+
+    assert config.clients.data == [["gamma", "delta"], [1, 2]]
+
+
