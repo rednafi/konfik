@@ -1,6 +1,6 @@
 import pytest
 
-from konfik.main import DeepDotMap, DotMap, Konfik
+from konfik.main import DeepDotMap, DotMap, Konfik, deploy_cli
 
 
 def test_dotmap():
@@ -349,11 +349,11 @@ clients:
     tmp_dir.mkdir()
 
     # So the actual directory would be tmp_path/sub/test_config.toml
-    test_json_path = tmp_dir / "test_config.yaml"
-    test_json_path.write_text(json_string)
+    test_yaml_path = tmp_dir / "test_config.yaml"
+    test_yaml_path.write_text(json_string)
 
     # Load toml from the test toml path
-    konfik = Konfik(config_path=test_json_path)
+    konfik = Konfik(config_path=test_yaml_path)
 
     # Make sure the serializer works
     konfik.serialize()
@@ -377,3 +377,7 @@ clients:
     assert config.servers.beta.dc == "eqdc10"
 
     assert config.clients.data == [["gamma", "delta"], [1, 2]]
+
+
+def test_deploy_cli():
+    
