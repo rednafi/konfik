@@ -377,7 +377,3 @@ clients:
     assert config.servers.beta.dc == "eqdc10"
 
     assert config.clients.data == [["gamma", "delta"], [1, 2]]
-
-
-def test_deploy_cli():
-    
