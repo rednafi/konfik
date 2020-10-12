@@ -44,7 +44,8 @@ jobs:
           echo "Checking Isort formatting..."
           poetry run isort --profile black --check .
 
-      - name: Run the Tests
+      - name: Run the Tests & Upload to Coverage.io
         run: |
           echo "Running pytest..."
-          poetry run pytest -v
+          pytest --cov-report=xml --cov=konfik tests/
+          bash <(curl -s https://codecov.io/bash) -t ${{ secrets.CODECOV_TOKEN }}
