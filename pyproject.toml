@@ -36,7 +36,7 @@ pytest-cov = "^2.10.1"
 isort = "^5.6.1"
 
 [tool.poetry.scripts]
-konfik = 'konfik.main:deploy_cli'
+konfik = 'konfik.main:cli_entrypoint'
 
 # linters
 [tool.black]

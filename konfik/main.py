@@ -58,6 +58,8 @@ class DeepDotMap(DotMap):
 
 
 class Konfik:
+    """Primary class that holds all the public APIs."""
+
     def __init__(self, config_path="config.toml", deep_dotmap=DeepDotMap):
         self._config = self._load_config(config_path)
         self.config = deep_dotmap(self._config)()
@@ -174,7 +176,9 @@ class KonfikCLI:
         return reduce(operator.getitem, items, root)
 
 
-def deploy_cli():
+def cli_entrypoint():
+    """CLI entrypoint callable."""
+
     parser = argparse.ArgumentParser(description="Konfik CLI")
     parser.add_argument("--show", help="show variables from config file")
     parser.add_argument("--path", help="add custom config file path")

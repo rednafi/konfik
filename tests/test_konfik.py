@@ -1,6 +1,6 @@
 import pytest
 
-from konfik.main import DeepDotMap, DotMap, Konfik, deploy_cli
+from konfik.main import DeepDotMap, DotMap, Konfik, cli_entrypoint
 
 
 def test_dotmap():
@@ -377,3 +377,10 @@ clients:
     assert config.servers.beta.dc == "eqdc10"
 
     assert config.clients.data == [["gamma", "delta"], [1, 2]]
+
+
+def test_argument_parser(capsys):
+
+    captured = capsys.readouterr()
+    result = captured.out
+    print(result)
