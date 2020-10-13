@@ -42,18 +42,19 @@ class DeepDotMap(DotMap):
     """Recursively applies DotMap object to a nested dictionary."""
 
     def __init__(self, dct):
-        super().__init__(dct)
+        self.dct = dct
 
     def __call__(self):
-        return self._dotmap_apply(self, DotMap)
+        return self._dotmap_apply(self.dct)
 
-    def _dotmap_apply(self, dct, dotmap):
+    @classmethod
+    def _dotmap_apply(cls, dct):
         """Recursively applying DotMap class."""
 
-        dct = dotmap(dct)
+        dct = cls.__base__(dct)
         for key, val in dct.items():
-            if isinstance(val, dict) and not isinstance(val, dotmap):
-                dct[key] = self._dotmap_apply(val, dotmap)
+            if isinstance(val, dict) and not isinstance(val, cls.__base__):
+                dct[key] = cls._dotmap_apply(val)
         return dct
 
 
