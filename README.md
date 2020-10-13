@@ -7,22 +7,24 @@
 ![Codecov](https://img.shields.io/codecov/c/github/rednafi/konfik?color=pink&style=flat-square&logo=appveyor)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg?style=flat-square&logo=appveyor)](https://github.com/python/black)
 [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square&logo=appveyor)](./LICENSE)
-</div>
+<br></br>
 
 
-## 📖 Description
-
-Konfik is a simple configuration parser that helps you access your TOML or DOTENV config variables using dot (.) notation. This enables you to do this:
+**Konfik** is a simple configuration parser that helps you access your config variables using dot (.) notation.
+This lets you to do this —
 
 ```python
 foo_bar_bazz = config.FOO.BAR.BAZZ
 ```
 
-instead of this:
+— instead of this —
 
 ```python
 foo_bar_bazz = config["FOO"]["BAR"]["BAZZ"]
 ```
+
+Konfik currently supports **TOML**, **YAML**, **DOTENV** and **JSON** configuration formats.
+</div>
 
 ## ⚙️ Installation
 
@@ -33,12 +35,12 @@ pip install konfik
 ```
 
 
-## 💡 Examples
+## 💡 Usage
 
 Let's see how you can parse a TOML config file and access the variables there. For demonstration, we'll be using the following `config.toml` file:
 
 ```toml
-# example_config.toml
+# Contents of `config.toml`
 
 title = "TOML Example"
 
@@ -139,16 +141,16 @@ konfik --show servers.alpha.ip
 If you're using a config that's not named as `config.toml` then you can deliver the path using the `--path` argument like this:
 
 ```
-konfik --path settings/example_config.env --show name
+konfik --path examples/config.env --show name
 ```
 
 ## 🙋 Why
 
 While working with machine learning models, I wanted an easier way to tune the model parameters without mutating the Python files. I needed something that would simply enable me to access tuple or dictionary data structures from a config file. I couldn't find anything that doesn't try to do a gazillion of other kinds of stuff or doesn't come with the overhead of a significant learning curve.
 
-Neither DOTENV nor YAML catered to my need as I was after something that gives me the ability to store complex data structures without a lot of fuss -- so TOML it is. However,Konfik also supports DOTENV, JSON and YAML. Also, not having to write angle brackets ([""]) to access dictionary values is nice!
+Neither DOTENV nor YAML catered to my need as I was after something that gives me the ability to store complex data structures without a lot of fuss — so TOML it is. However, Konfik also supports DOTENV, JSON and YAML. Moreover, not having to write angle brackets —`["key"]` — to access dictionary values is nice!
 
-## 🎉 Contribution Guidelines
+## 🎉 Contribution
 
 * Clone the repo
 * Spin up and activate your virtual environment. You can use anything between Python 3.6 to Python 3.9.
@@ -159,12 +161,16 @@ Neither DOTENV nor YAML catered to my need as I was after something that gives m
     ```
 * Make your changes to the `konfik/main.py` file
 
-* Run the tests via the following command. Make sure you've Python 3.6 - Python 3.9 installed, otherwise tox would throw an error.
+* Run the tests via the following command. Make sure you've Python 3.6 - Python 3.9 installed, otherwise **Tox** would throw an error.
     ```
-    tox
+    make test
     ```
 * Write a simple unit test for your change
 * Run the linter via:
     ```
     make linter
     ```
+
+<div align="center">
+<i> ⚡⚡ </i>
+</div>
