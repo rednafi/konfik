@@ -135,7 +135,7 @@ class Konfik:
     def _load_yaml(config_path):
         try:
             with open(config_path) as f:
-                config = yaml.full_load(f)
+                config = yaml.safe_load(f)
                 return config
         except FileNotFoundError:
             raise FileNotFoundError("YAML file not found")
