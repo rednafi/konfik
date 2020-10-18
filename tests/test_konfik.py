@@ -1,6 +1,8 @@
+from argparse import Namespace
+
 import pytest
 
-from konfik.main import DeepDotMap, DotMap, Konfik, cli_entrypoint
+from konfik.main import DeepDotMap, DotMap, Konfik, KonfikCLI, cli_entrypoint
 
 
 def test_dotmap():
@@ -384,3 +386,68 @@ def test_argument_parser(capsys):
     captured = capsys.readouterr()
     result = captured.out
     print(result)
+
+
+def test_konfik_cli(tmp_path, capfd):
+    """Test the KonfikCLI class for toml."""
+
+    toml_string = """
+    # This is a TOML document.
+
+    title = "TOML Example"
+
+    [owner]
+    name = "Tom Preston-Werner"
+    dob = 1979-05-27T07:32:00-08:00
+
+    [database]
+    server = "192.168.1.1"
+    ports = [ 8001, 8001, 8002 ]
+    connection_max = 5000
+    enabled = true
+
+    [servers]
+    [servers.alpha]
+    ip = "10.0.0.1"
+    dc = "eqdc10"
+
+    [servers.beta]
+    ip = "10.0.0.2"
+    dc = "eqdc10"
+
+    [clients]
+    data = [ ["gamma", "delta"], [1, 2] ]
+
+    """
+    # Making a temporary directory to hold the toml file
+    # https://docs.pytest.org/en/stable/tmpdir.html#the-tmp-path-fixture
+    tmp_dir = tmp_path / "sub"
+    tmp_dir.mkdir()
+
+    # So the actual directory would be tmp_path/sub/test_config.toml
+    test_toml_path = tmp_dir / "test_config.toml"
+    test_toml_path.write_text(toml_string)
+
+    # Load toml from the test toml path
+    konfik = Konfik(config_path=test_toml_path)
+
+    konfik_cli = KonfikCLI(
+        konfik=konfik,
+        args=Namespace(path=test_toml_path, serialize=True, show=None, version=False),
+    )
+
+    konfik_cli._serialize()
+
+    konfik_cli = KonfikCLI(
+        konfik=konfik,
+        args=Namespace(path=test_toml_path, serialize=False, show=None, version=True),
+    )
+
+    konfik_cli._version("5.5.5")
+    out, _ = capfd.readouterr()
+    assert "title" in out
+    assert "owner" in out
+    assert "client" in out
+    assert "database" in out
+
+    assert "5.5" in out
