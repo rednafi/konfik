@@ -160,8 +160,8 @@ class KonfikCLI:
     def _serialize(self):
         self.konfik.serialize()
 
-    def _version(self):
-        console.print(__version__)
+    def _version(self, version=__version__):
+        console.print(version)
 
     def run_cli(self):
         if self.args.show is not None:
