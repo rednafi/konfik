@@ -43,17 +43,20 @@ jobs:
           echo "Checking Isort formatting..."
           poetry run isort --profile black --check .
 
-      - name: Run the Tests & Upload to Coverage.io
+      - name: Run the tests & Generate coverage report
         run: |
-          echo "Running pytest..."
-          poetry run pytest -v -s --cov-report=xml --cov=konfik tests/
+          poetry run pytest -v -s --cov=./ --cov-report=xml
 
-      - uses: actions/checkout@master
-      - uses: codecov/codecov-action@v1
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
         with:
-          token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
-          file: ./coverage.xml # optional
-          flags: unittests # optional
-          name: codecov-umbrella # optional
-          fail_ci_if_error: true # optional (default = false)
-          verbose: true # optional (default = false)
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./coverage.xml
+          files: ./coverage1.xml,./coverage2.xml
+          directory: ./coverage/reports/
+          flags: unittests
+          env_vars: OS,PYTHON
+          name: codecov-umbrella
+          fail_ci_if_error: true
+          path_to_write_report: ./coverage/codecov_report.gz
+          verbose: true
