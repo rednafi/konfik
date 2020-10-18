@@ -46,5 +46,5 @@ jobs:
       - name: Run the Tests & Upload to Coverage.io
         run: |
           echo "Running pytest..."
-          poetry run pytest --cov-report=xml --cov=konfik tests/
+          poetry run pytest -v -s --cov-report=xml --cov=konfik tests/
           bash <(curl -s https://codecov.io/bash) -t ${{ secrets.CODECOV_TOKEN }}
