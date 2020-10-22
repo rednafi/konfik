@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "konfik"
-version = "1.0.3"
+version = "1.0.4"
 description = "The Strangely Familiar Config Parser"
 authors = ["rednafi <redowan.nafi@gmail.com>"]
 
