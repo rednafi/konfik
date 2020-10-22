@@ -22,7 +22,7 @@ lint: venvcheck		## Run Black and Isort linters
 	@black .
 	@isort .
 
-upgrade: venvcheck	## Update the dependencies
+upgrade: venvcheck	## Upgrade the dependencies
 	poetry update
 
 downgrade: venvcheck ## Downgrade the dependencies
