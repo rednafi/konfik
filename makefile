@@ -1,5 +1,9 @@
+.PHONY: help
 
-.PHONY: venvcheck
+help:
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+
+.PHONY: venvcheck ## Check if venv is active
 venvcheck:
 ifeq ("$(VIRTUAL_ENV)","")
 	@echo "Venv is not activated!"
@@ -8,20 +12,25 @@ ifeq ("$(VIRTUAL_ENV)","")
 	exit 1
 endif
 
-install: venvcheck
+install: venvcheck  ## Install the dependencies
 	@poetry install
 
-test: venvcheck
+test: venvcheck		## Run the tests
 	@tox
 
-lint: venvcheck
-	@black --line-length 88 --exclude '.venv|.tox'  .
-	@isort --profile black .
+lint: venvcheck		## Run Black and Isort linters
+	@black .
+	@isort .
 
+upgrade: venvcheck	## Update the dependencies
+	poetry update
 
-example: venvcheck
+downgrade: venvcheck ## Downgrade the dependencies
+	git checkout pyproject.toml && git checkout poetry.lock
+
+example: venvcheck	## Run the examples
 	@python example.py
 
-publish: venvcheck
+publish: venvcheck	## Build and publish to PYPI
 	@poetry build
 	@poetry publish
