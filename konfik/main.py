@@ -15,23 +15,35 @@ console = Console()
 
 
 class MissingVariableError(Exception):
+    """Error is raised when an undefined variable is called. This
+    encapsulates the built-in dict KeyError."""
+
     pass
 
+
 class MissingConfigError(Exception):
+    """Error is raised when configuration file is not found. This
+    encapsulates the built-in FileNotFoundError."""
+
     pass
 
 
 class DotMap(dict):
+    """Modified dictionary class that lets do access key:val via dot notation."""
+
     def _mod_getitem(self, key):
+        # Private method that gets called in self.__getitem__ method
         try:
             return super().__getitem__(key)
         except KeyError:
             raise MissingVariableError(f"No such variable '{key}' exists") from None
 
     def _mod_setitem(self, key, val):
+        # Private method that gets called in self.__setitem__ method
         super().__setitem__(key, val)
 
     def _mod_delitem(self, key):
+        # Private method that gets called in self.__delitem__ method
         try:
             super().__delitem__(key)
         except KeyError:
@@ -58,6 +70,7 @@ class DotMap(dict):
 
 def apply_dotmap(dct, dotmap_cls=DotMap):
     """Recursively applies DotMap object to a nested dictionary."""
+
     dct = dotmap_cls(dct)
     for key, val in dct.items():
         if isinstance(val, dict) and not isinstance(val, dotmap_cls):
