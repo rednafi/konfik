@@ -1,10 +1,4 @@
-[tool.poetry]
-name = "konfik"
-version = "1.0.5"
-description = "The Strangely Familiar Config Parser"
-authors = ["rednafi <redowan.nafi@gmail.com>"]
-
-# New attributes
+# Metadata
 license = "MIT"
 readme = "README.md"
 homepage = "https://github.com/rednafi/konfik"
@@ -17,28 +11,36 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Software Development :: Quality Assurance",
 ]
-include = [
-    "LICENSE",
-]
+include = ["LICENSE"]
 
+# Package manager
+[tool.poetry]
+name = "konfik"
+version = "1.0.5"
+description = "The Strangely Familiar Config Parser"
+authors = ["rednafi <redowan.nafi@gmail.com>"]
+
+# App dependencies
 [tool.poetry.dependencies]
 python = "^3.6"
-rich = "^8.0.0"
+rich = "^9.1.0"
 toml = "^0.10.1"
 python-dotenv = "^0.14.0"
 PyYAML = "^5.3.1"
 
+# Development dependencies
 [tool.poetry.dev-dependencies]
-pytest = "^6.1"
-tox = "^3.20.0"
+pytest = "^6.1.1"
+tox = "^3.20.1"
 black = "^20.8b1"
 pytest-cov = "^2.10.1"
 isort = "^5.6.4"
 
+# CLI entrypoints
 [tool.poetry.scripts]
-konfik = 'konfik.main:cli_entrypoint'
+konfik = "konfik.main:cli_entrypoint"
 
-# linters
+# Third-party configs
 [tool.black]
 line-length = 88
 
@@ -46,6 +48,25 @@ line-length = 88
 profile = "black"
 atomic = true
 
+[tool.tox]
+legacy_tox_ini = """
+# content of: tox.ini , put in same dir as setup.py
+[tox]
+envlist = py36,py37,py38,py39
+isolated_build = True
+
+[testenv]
+# install pytest in the virtualenv where commands will be executed
+deps = pytest
+install_commands =
+    curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+    poetry install --no-dev
+commands =
+    # NOTE: you can run any command line tool here - not just tests
+    pytest -v -s
+"""
+
+# PEP-518: build-requires
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
