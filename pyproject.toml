@@ -16,7 +16,7 @@ include = ["LICENSE"]
 # Package manager
 [tool.poetry]
 name = "konfik"
-version = "1.0.5"
+version = "1.0.6"
 description = "The Strangely Familiar Config Parser"
 authors = ["rednafi <redowan.nafi@gmail.com>"]
 
@@ -38,7 +38,7 @@ isort = "^5.6.4"
 
 # CLI entrypoints
 [tool.poetry.scripts]
-konfik = "konfik.main:cli_entrypoint"
+konfik = "konfik:cli_entrypoint"
 
 # Third-party configs
 [tool.black]

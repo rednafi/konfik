@@ -2,7 +2,7 @@ from argparse import Namespace
 
 import pytest
 
-from konfik.main import (
+from konfik import (
     DotMap,
     Konfik,
     KonfikCLI,
