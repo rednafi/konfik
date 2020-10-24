@@ -29,7 +29,7 @@ downgrade: venvcheck ## Downgrade the dependencies
 	git checkout pyproject.toml && git checkout poetry.lock
 
 example: venvcheck	## Run the examples
-	@python example.py
+	@python examples/*.py
 
 publish: venvcheck	## Build and publish to PYPI
 	@poetry build

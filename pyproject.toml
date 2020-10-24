@@ -40,10 +40,11 @@ konfik = 'konfik.main:cli_entrypoint'
 
 # linters
 [tool.black]
-l = 88
+line-length = 88
 
 [tool.isort]
 profile = "black"
+atomic = true
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

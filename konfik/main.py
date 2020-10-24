@@ -14,56 +14,63 @@ from konfik import __version__
 console = Console()
 
 
+class MissingVariableError(Exception):
+    pass
+
+class MissingConfigError(Exception):
+    pass
+
+
 class DotMap(dict):
-    """Modified dictionary object where the values can be accessed
-    as dotdict.key instead of dct[key]
-    """
+    def _mod_getitem(self, key):
+        try:
+            return super().__getitem__(key)
+        except KeyError:
+            raise MissingVariableError(f"No such variable '{key}' exists") from None
 
-    def __getattr__(self, attr):
-        # I should probably raise AttributeError here but I don't want to change dict's behavior
-        return self[attr]
+    def _mod_setitem(self, key, val):
+        super().__setitem__(key, val)
 
-    def __setattr__(self, key, val):
-        self.__setitem__(key, val)
+    def _mod_delitem(self, key):
+        try:
+            super().__delitem__(key)
+        except KeyError:
+            raise MissingVariableError(f"No such variable '{key}' exists") from None
+
+    def __getitem__(self, key):
+        return self._mod_getitem(key)
 
     def __setitem__(self, key, val):
-        super().__setitem__(key, val)
-        self.__dict__.update({key: val})
-
-    def __delattr__(self, item):
-        self.__delitem__(item)
+        self._mod_setitem(key, val)
 
     def __delitem__(self, key):
-        super().__delitem__(key)
-        del self.__dict__[key]
+        self._mod_delitem(key)
+
+    def __getattr__(self, attr_name):
+        return self._mod_getitem(attr_name)
+
+    def __setattr__(self, attr_name, attr_val):
+        self._mod_setitem(attr_name, attr_val)
+
+    def __delattr__(self, attr_name):
+        self._mod_delitem(attr_name)
 
 
-class DeepDotMap(DotMap):
+def apply_dotmap(dct, dotmap_cls=DotMap):
     """Recursively applies DotMap object to a nested dictionary."""
-
-    def __init__(self, dct):
-        self.dct = dct
-
-    def __call__(self):
-        return self._dotmap_apply(self.dct)
-
-    @classmethod
-    def _dotmap_apply(cls, dct):
-        """Recursively applying DotMap class."""
-
-        dct = cls.__base__(dct)
-        for key, val in dct.items():
-            if isinstance(val, dict) and not isinstance(val, cls.__base__):
-                dct[key] = cls._dotmap_apply(val)
-        return dct
+    dct = dotmap_cls(dct)
+    for key, val in dct.items():
+        if isinstance(val, dict) and not isinstance(val, dotmap_cls):
+            dct[key] = apply_dotmap(val)
+    return dct
 
 
 class Konfik:
     """Primary class that holds all the public APIs."""
 
-    def __init__(self, config_path="config.toml", deep_dotmap=DeepDotMap):
+    def __init__(self, config_path="config.toml", apply_dotmap=apply_dotmap):
         self._config = self._load_config(config_path)
-        self.config = deep_dotmap(self._config)()
+        self.config = apply_dotmap(self._config)
 
     def serialize(self):
         """Serializing TOML config to Python dictionary."""
@@ -108,7 +115,7 @@ class Konfik:
                 return config
 
         except OSError:
-            raise FileNotFoundError("DOTENV file not found") from None
+            raise MissingConfigError("DOTENV file not found") from None
 
     @staticmethod
     def _load_json(config_path):
@@ -117,7 +124,7 @@ class Konfik:
                 config = json.load(f)
                 return config
         except FileNotFoundError:
-            raise FileNotFoundError("JSON file not found")
+            raise MissingConfigError("JSON file not found")
 
     @staticmethod
     def _load_toml(config_path):
@@ -129,7 +136,7 @@ class Konfik:
             return config
 
         except FileNotFoundError:
-            raise FileNotFoundError("TOML file not found") from None
+            raise MissingConfigError("TOML file not found") from None
 
     @staticmethod
     def _load_yaml(config_path):
@@ -138,7 +145,7 @@ class Konfik:
                 config = yaml.safe_load(f)
                 return config
         except FileNotFoundError:
-            raise FileNotFoundError("YAML file not found")
+            raise MissingConfigError("YAML file not found")
 
 
 class KonfikCLI:
