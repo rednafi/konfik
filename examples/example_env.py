@@ -1,20 +1,23 @@
+from pathlib import Path
+
 from konfik import Konfik
 
 # Define the config paths
-CONFIG_PATH_ENV = "config.env"
+BASE_DIR = Path(__file__).parent
+CONFIG_PATH_ENV = BASE_DIR / "config.env"
 
 # Initialize the Konfik class
-konfik_env = Konfik(config_path=CONFIG_PATH_ENV)
+konfik = Konfik(config_path=CONFIG_PATH_ENV)
 
 # Serialize and print the dotenv config file
-konfik_env.serialize()
+konfik.show_config()
 
 # Access the variables in the config files via dot notation
-config_env = konfik_env.config
+config = konfik.config
 
 # Access and print the variables in env file
-print(config_env.TITLE)
-print(config_env.NAME)
-print(config_env.DOB)
-print(config_env.SERVER)
-print(config_env.PORT)
+print(config.TITLE)
+print(config.NAME)
+print(config.DOB)
+print(config.SERVER)
+print(config.PORT)

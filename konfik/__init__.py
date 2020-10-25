@@ -2,7 +2,6 @@ import argparse
 import json
 import operator
 from functools import reduce
-from pathlib import Path
 
 import pkg_resources
 import toml
@@ -126,7 +125,7 @@ class Konfik:
 
             else:
                 raise NotImplementedError(
-                    f"Config type '{self._config_ext}' not supported"
+                    f"Config type '{self._config_ext}' is not supported"
                 )
 
     @staticmethod
@@ -188,14 +187,6 @@ class Konfik:
                 f"No such variable '{e.args[0]}' exists"
             ) from None
 
-    @staticmethod
-    def _convert_path(config_path):
-        """Convert string path to pathlib object."""
-
-        if isinstance(config_path, str):
-            return Path(config_path)
-        return config_path
-
 
 class KonfikCLI:
     """Access and show config variables using CLI."""
@@ -223,34 +214,34 @@ def cli_entrypoint():
     """CLI entrypoint callable."""
 
     parser = argparse.ArgumentParser(description="Konfik CLI")
+    parser._action_groups.pop()
+    required = parser.add_argument_group("required arguments")
+    optional = parser.add_argument_group("optional arguments")
 
-    parser.add_argument(
+    # Add mandatory arguments
+    required.add_argument("--path", required=True, help="add config file path")
+
+    # Add optional arguments
+    optional.add_argument(
         "--show",
         action="store_true",
-        help="Show config as a Python dict",
+        help="print config as a dict",
     )
-    parser.add_argument(
+    optional.add_argument(
         "--show-literal",
         action="store_true",
-        help="Show config file content literally",
+        help="print config file content literally",
     )
-    parser.add_argument("--path", help="Add custom config file path")
-    parser.add_argument("--var", help="Show config variable")
-    parser.add_argument(
+    optional.add_argument("--var", help="print config variable")
+    optional.add_argument(
         "--version",
         action="store_true",
-        help="Print konfik-cli version number",
+        help="print konfik-cli version number",
     )
 
     args = parser.parse_args()
     trigger = [args.show, args.show_literal, args.var, args.version]
-
     if any(trigger):
-        if args.path:
-            config_path = args.path
-        else:
-            config_path = "./config.toml"
-
-        konfik = Konfik(config_path)
+        konfik = Konfik(args.path)
         konfik_cli = KonfikCLI(konfik, args)
         konfik_cli.run_cli()

@@ -64,30 +64,32 @@ data = [ ["gamma", "delta"], [1, 2] ]
 To parse this in Python:
 
 ```python
+from pathlib import Path
 from konfik import Konfik
 
 # Define the config path
-CONFIG_PATH_TOML = "config.toml"
+BASE_DIR = Path(__file__).parent
+CONFIG_PATH_TOML = BASE_DIR / "config.toml"
 
 # Initialize the konfik class
 konfik = Konfik(config_path=CONFIG_PATH_TOML)
 
-# Serialize and print the confile file
-konfik.serialize()
+# Print the config file as a Python dict
+konfik.show_config()
 
-# Get the configuration dictionary from the konfik class
-config_toml = konfik.config
+# Get the config dict from the konfik class
+config = konfik.config
 
 # Access and print the variables
-title = config_toml.title
-owner = config_toml.owner
-dob = config_toml.owner.dob
-database = config_toml.database.ports
-server_ip = config_toml.servers.alpha.ip
-clients = config_toml.clients
+print(config.title)
+print(config.owner)
+print(config.owner.dob)
+print(config.database.ports)
+print(config.servers.alpha.ip)
+print(config.clients)
 ```
 
-The `.serialize()` method will print your entire config file as a colorized Python dictionary object like this:
+The `.show_config()` method will print your entire config file as a colorized Python dictionary object like this:
 
 ```python
 {
@@ -120,35 +122,25 @@ konfik --help
 This will reveal the options associated with the CLI tool:
 
 ```
-usage: konfik [-h] [--show SHOW] [--path PATH] [--serialize] [--version]
+usage: konfik [-h] --path PATH [--show] [--show-literal] [--var VAR] [--version]
 
 Konfik CLI
 
+required arguments:
+  --path PATH     add custom config file path
+
 optional arguments:
-  -h, --help   show this help message and exit
-  --show SHOW  show variables from config file
-  --path PATH  add custom config file path
-  --serialize  print the serialized config file
-  --version    print konfik-cli version number
+  --show          print config as a dict
+  --show-literal  print config file content literally
+  --var VAR       print config variable
+  --version       print konfik-cli version number
 ```
 
 To inspect the value of a specific variable in a `config.toml` file you can run:
 
 ```
-konfik --show servers.alpha.ip
+konfik --path=examples/config.env --var servers.alpha.ip
 ```
-
-If you're using a config that's not named as `config.toml` then you can deliver the path using the `--path` argument like this:
-
-```
-konfik --path examples/config.env --show name
-```
-
-## 🙋 Why
-
-While working with machine learning models, I wanted an easier way to tune the model parameters without mutating the Python files. I needed something that would simply enable me to access tuple or dictionary data structures from a config file. I couldn't find anything that doesn't try to do a gazillion of other kinds of stuff or doesn't come with the overhead of a significant learning curve.
-
-Neither DOTENV nor YAML catered to my need as I was after something that gives me the ability to store complex data structures without a lot of fuss — so TOML it is. However, Konfik also supports DOTENV, JSON and YAML. Moreover, not having to write angle brackets —`["key"]` — to access dictionary values is nice!
 
 ## 🎉 Contribution
 
@@ -159,7 +151,7 @@ Neither DOTENV nor YAML catered to my need as I was after something that gives m
     ```
     poetry install
     ```
-* Make your changes to the `konfik/main.py` file
+* Make your changes to the `konfik/__init__.py` file
 
 * Run the tests via the following command. Make sure you've Python 3.6 - Python 3.9 installed, otherwise **Tox** would throw an error.
     ```
@@ -170,7 +162,8 @@ Neither DOTENV nor YAML catered to my need as I was after something that gives m
     ```
     make linter
     ```
+* Send a pull request against the master branch
 
 <div align="center">
-<i> ⚡⚡ </i>
+<i> 🍰 </i>
 </div>

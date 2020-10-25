@@ -1,22 +1,24 @@
+from pathlib import Path
+
 from konfik import Konfik
 
 # Define the config path
-
-CONFIG_PATH_TOML = "config.json"
+BASE_DIR = Path(__file__).parent
+CONFIG_PATH_JSON = BASE_DIR / "config.json"
 
 # Initialize the Konfik class
-konfik = Konfik(config_path=CONFIG_PATH_TOML)
+konfik = Konfik(config_path=CONFIG_PATH_JSON)
 
 # Serialize and print the confile file
-konfik.serialize()
+konfik.show_config()
 
 # Get the configuration dictionary from the konfik class
-config_json = konfik.config
+config = konfik.config
 
 # Access and print the variables in toml file
-print(config_json.title)
-print(config_json.owner)
-print(config_json.owner.dob)
-print(config_json.database.ports)
-print(config_json.servers.alpha.ip)
-print(config_json.clients)
+print(config.title)
+print(config.owner)
+print(config.owner.dob)
+print(config.database.ports)
+print(config.servers.alpha.ip)
+print(config.clients)
