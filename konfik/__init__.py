@@ -2,12 +2,14 @@ import argparse
 import json
 import operator
 from functools import reduce
+from pathlib import Path
 
 import pkg_resources
 import toml
 import yaml
 from dotenv import dotenv_values, find_dotenv
 from rich.console import Console
+from rich.syntax import Syntax
 
 __version__ = pkg_resources.get_distribution("konfik").version
 
@@ -78,35 +80,54 @@ class Konfik:
     """Primary class that holds all the public APIs."""
 
     def __init__(self, config_path="config.toml", apply_dotmap=apply_dotmap):
-        self._config = self._load_config(config_path)
-        self.config = apply_dotmap(self._config)
+        self._config_path = config_path
+        self._config_ext = str(self._config_path).split(".")[-1]
+        self._config_raw = self._load_config()
+        self.config = apply_dotmap(self._config_raw)
 
-    def serialize(self):
-        """Serializing TOML config to Python dictionary."""
-        console.print(self._config)
+    def show_config(self):
+        """Printing evaluated config file as a Python dict."""
+        console.print(self._config_raw)
 
-    def _load_config(self, config_path):
+    def show_config_literal(self):
+        """Print literal config file contents."""
+
+        with open(self._config_path) as f:
+            config_str = f.read()
+            syntax = Syntax(config_str, f"{self._config_ext}", theme="ansi_dark")
+            console.print(syntax)
+
+    def show_config_var(self, query):
+        """Print config variable."""
+
+        if isinstance(query, str):
+            query_lst = query.split(".")
+            value = self.get_by_path(self._config_raw, query_lst)
+            console.print(value)
+
+    def _load_config(self):
         """Load config.toml file."""
 
         # Making sure that pathlib.Path object are converted to string
-        if config_path:
-            config_path = str(config_path)
-            suffix = config_path.split(".")[-1]
+        if self._config_path:
+            config_path = str(self._config_path)
 
-            if suffix == "env":
+            if self._config_ext == "env":
                 return self._load_env(config_path)
 
-            elif suffix == "json":
+            elif self._config_ext == "json":
                 return self._load_json(config_path)
 
-            elif suffix == "toml":
+            elif self._config_ext == "toml":
                 return self._load_toml(config_path)
 
-            elif suffix == "yaml" or suffix == "yml":
+            elif self._config_ext == "yaml" or self._config_ext == "yml":
                 return self._load_yaml(config_path)
 
             else:
-                raise NotImplementedError(f"Config type {suffix} not supported")
+                raise NotImplementedError(
+                    f"Config type '{self._config_ext}' not supported"
+                )
 
     @staticmethod
     def _load_env(config_path):
@@ -156,6 +177,25 @@ class Konfik:
         except FileNotFoundError:
             raise MissingConfigError("YAML file not found")
 
+    @staticmethod
+    def get_by_path(dct, key_list):
+        """Access a nested object in root by item sequence."""
+
+        try:
+            return reduce(operator.getitem, key_list, dct)
+        except KeyError as e:
+            raise MissingVariableError(
+                f"No such variable '{e.args[0]}' exists"
+            ) from None
+
+    @staticmethod
+    def _convert_path(config_path):
+        """Convert string path to pathlib object."""
+
+        if isinstance(config_path, str):
+            return Path(config_path)
+        return config_path
+
 
 class KonfikCLI:
     """Access and show config variables using CLI."""
@@ -164,51 +204,48 @@ class KonfikCLI:
         self.konfik = konfik
         self.args = args
 
-    def _show(self):
-        if isinstance(self.args.show, str):
-            query = self.args.show.split(".")
-            value = self.get_by_path(self.konfik.config, query)
-            if isinstance(value, DotMap):
-                # Rich causes problem if the output type is DotMap
-                value = dict(value)
-            console.print(value)
-
-    def _serialize(self):
-        self.konfik.serialize()
-
-    def _version(self, version=__version__):
+    @staticmethod
+    def _version(version=__version__):
         console.print(version)
 
     def run_cli(self):
-        if self.args.show is not None:
-            self._show()
-        elif self.args.serialize is True:
-            self._serialize()
+        if self.args.show is True:
+            self.konfik.show_config()
+        elif self.args.show_literal is True:
+            self.konfik.show_config_literal()
+        elif self.args.var:
+            self.konfik.show_config_var(self.args.var)
         elif self.args.version is True:
             self._version()
-
-    @staticmethod
-    def get_by_path(root, items):
-        """Access a nested object in root by item sequence."""
-        return reduce(operator.getitem, items, root)
 
 
 def cli_entrypoint():
     """CLI entrypoint callable."""
 
     parser = argparse.ArgumentParser(description="Konfik CLI")
-    parser.add_argument("--show", help="show variables from config file")
-    parser.add_argument("--path", help="add custom config file path")
+
     parser.add_argument(
-        "--serialize", action="store_true", help="print the serialized config file"
+        "--show",
+        action="store_true",
+        help="Show config as a Python dict",
     )
     parser.add_argument(
-        "--version", action="store_true", help="print konfik-cli version number"
+        "--show-literal",
+        action="store_true",
+        help="Show config file content literally",
+    )
+    parser.add_argument("--path", help="Add custom config file path")
+    parser.add_argument("--var", help="Show config variable")
+    parser.add_argument(
+        "--version",
+        action="store_true",
+        help="Print konfik-cli version number",
     )
 
     args = parser.parse_args()
+    trigger = [args.show, args.show_literal, args.var, args.version]
 
-    if args.show or args.serialize or args.version:
+    if any(trigger):
         if args.path:
             config_path = args.path
         else:

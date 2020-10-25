@@ -171,7 +171,7 @@ def test_konfik_toml(tmp_path):
     konfik = Konfik(config_path=test_toml_path)
 
     # Make sure the serializer works
-    konfik.serialize()
+    konfik.show_config()
 
     # Test variable access with dot notation
     config = konfik.config
@@ -225,7 +225,7 @@ def test_konfik_env(tmp_path):
     konfik = Konfik(config_path=test_env_path)
 
     # Make sure the serializer works
-    konfik.serialize()
+    konfik.show_config()
 
     # Test variable access with dot notation
     config = konfik.config
@@ -298,7 +298,7 @@ def test_konfik_json(tmp_path):
     konfik = Konfik(config_path=test_json_path)
 
     # Make sure the serializer works
-    konfik.serialize()
+    konfik.show_config()
 
     # Test variable access with dot notation
     config = konfik.config
@@ -365,7 +365,7 @@ clients:
     konfik = Konfik(config_path=test_yaml_path)
 
     # Make sure the serializer works
-    konfik.serialize()
+    konfik.show_config()
 
     # Test variable access with dot notation
     config = konfik.config
@@ -440,14 +440,16 @@ def test_konfik_cli(tmp_path, capfd):
 
     konfik_cli = KonfikCLI(
         konfik=konfik,
-        args=Namespace(path=test_toml_path, serialize=True, show=None, version=False),
+        args=Namespace(
+            path=test_toml_path, show=True, show_literal=False, var=False, version=False
+        ),
     )
 
-    konfik_cli._serialize()
+    konfik_cli.konfik.show_config()
 
     konfik_cli = KonfikCLI(
         konfik=konfik,
-        args=Namespace(path=test_toml_path, serialize=False, show=None, version=True),
+        args=Namespace(path=test_toml_path, show=None, version=True),
     )
 
     konfik_cli._version("5.5.5")
