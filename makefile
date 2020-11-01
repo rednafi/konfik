@@ -1,5 +1,5 @@
 .PHONY: help
-help:       
+help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-25s\033[0m %s\n", $$1, $$2}'
 
 .PHONY: venvcheck ## Check if venv is active
@@ -30,3 +30,9 @@ downgrade: venvcheck ## Downgrade the dependencies
 publish: venvcheck	## Build and publish to PYPI
 	@poetry build
 	@poetry publish
+
+
+coverage: venvcheck ## Upload code coverage
+
+	pytest -v -s --cov-report=xml --cov=konfik tests/
+	

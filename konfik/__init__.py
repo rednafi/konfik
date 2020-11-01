@@ -37,54 +37,40 @@ class DotMap(dict):
         for k, v in self.items():
             self.__setitem__(k, v)
 
-    def __getitem(self, key):
+    def __getitem__(self, key):
         # Private method that gets called in self.__getitem__ method
         try:
             return super().__getitem__(key)
         except KeyError:
             raise MissingVariableError(f"No such variable '{key}' exists") from None
 
-    def __setitem(self, key, val):
+    def __setitem__(self, key, val):
         # Private method that gets called in self.__setitem__ method
-        super().__setitem__(key, self.__convert(val))
+        super().__setitem__(key, self._convert(val))
 
-    def __delitem(self, key):
+    def __delitem__(self, key):
         # Private method that gets called in self.__delitem__ method
         if hasattr(self, key):
             super().__delitem__(key)
 
-    def __getitem__(self, key):
-        return self.__getitem(key)
+    __getattr__ = __getitem__
+    __setattr__ = __setitem__
+    __delattr__ = __delitem__
 
-    def __setitem__(self, key, val):
-        self.__setitem(key, val)
-
-    def __delitem__(self, key):
-        self.__delitem(key)
-
-    def __getattr__(self, attr_name):
-        return self.__getitem(attr_name)
-
-    def __setattr__(self, attr_name, attr_val):
-        self.__setitem(attr_name, attr_val)
-
-    def __delattr__(self, attr_name):
-        self.__delitem(attr_name)
-
-    @staticmethod
-    def __convert(o):
+    @classmethod
+    def _convert(cls, o):
         """
         Recursively convert `dict` objects in `dict`, `list`, `set`, and
-        `tuple` objects to `attrdict` objects.
+        `tuple` objects to `DotMap` objects.
         """
         if isinstance(o, dict):
-            o = DotMap(o)
+            o = cls(o)
         elif isinstance(o, list):
-            o = list(DotMap.__convert(v) for v in o)
+            o = list(cls._convert(v) for v in o)
         elif isinstance(o, set):
-            o = set(DotMap.__convert(v) for v in o)
+            o = set(cls._convert(v) for v in o)
         elif isinstance(o, tuple):
-            o = tuple(DotMap.__convert(v) for v in o)
+            o = tuple(cls._convert(v) for v in o)
         return o
 
 

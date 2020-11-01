@@ -7,129 +7,161 @@ from konfik import (
     Konfik,
     KonfikCLI,
     MissingVariableError,
-    cli_entrypoint,
 )
 
 
-def test_dotmap():
+@pytest.fixture
+def config_dict():
+    """Sample config dict."""
+
+    d = {
+        "title": "TOML Example",
+        "owner": {
+            "name": "Tom Preston-Werner",
+            "dob": "1979-05-27",
+        },
+        "database": {
+            "server": "192.168.1.1",
+            "ports": [8001, 8001, 8002],
+            "connection_max": 5000,
+            "enabled": True,
+        },
+        "servers": {
+            "alpha": {"ip": "10.0.0.1", "dc": "eqdc10"},
+            "beta": {"ip": "10.0.0.2", "dc": "eqdc10"},
+        },
+        "clients": {
+            "data": [["gamma", "delta"], [1, 2]],
+        },
+    }
+    return d
+
+
+def make_config_path(tmp_path, config_str, config_ext):
+    # Making a temporary directory to hold the config file
+    # https://docs.pytest.org/en/stable/tmpdir.html#the-tmp-path-fixture
+    tmp_dir = tmp_path / "sub"
+    tmp_dir.mkdir()
+
+    # So the actual directory would be tmp_path/sub/test_config.extension
+    test_config_path = tmp_dir / f"test_config.{config_ext}"
+    test_config_path.write_text(config_str)
+    return test_config_path
+
+
+
+def test_dotmap(config_dict):
     """Test the DotMap class."""
 
     # Test dot notation features
-    d = {
-        "j": {
-            "k": {
-                "l": 1,
-            },
-        },
-    }
-
-    d = DotMap(d)
+    d = DotMap(config_dict)
 
     # Check if d is an instance of DotMap object
     assert isinstance(d, DotMap) is True
 
+    # Check if nested dictionary instance is also DotMap
+    assert isinstance(d["database"], DotMap) is True
+
     # Check if the dot notation key access works
-    assert d.j == {"k": {"l": 1}}
+    assert d.title == "TOML Example"
+    assert d.owner.name == "Tom Preston-Werner"
+    assert d.owner.dob == "1979-05-27"
+
+    assert isinstance(d.database, DotMap) is True
+    assert d.database == {
+        "server": "192.168.1.1",
+        "ports": [8001, 8001, 8002],
+        "connection_max": 5000,
+        "enabled": True,
+    }
+    assert d.database.server == "192.168.1.1"
+    assert d.database.ports == [8001, 8001, 8002]
+    assert d.database.enabled is True
+
+    assert isinstance(d.servers, DotMap) is True
+    assert d.servers == {
+        "alpha": {"ip": "10.0.0.1", "dc": "eqdc10"},
+        "beta": {"ip": "10.0.0.2", "dc": "eqdc10"},
+    }
+
+    assert isinstance(d.servers.alpha, DotMap) is True
+    assert d.servers.alpha == {"ip": "10.0.0.1", "dc": "eqdc10"}
+
+    assert d.servers.alpha.ip == "10.0.0.1"
+    assert d.servers.alpha.dc == "eqdc10"
 
     # Check if dot notation assignment works
-    d.j = {"m": 2}
-    assert d.j == {"m": 2}
+    d.title = "Test Environ"
+    assert d.title == "Test Environ"
+
+    d.owner = "Redowan Delowar"
+    assert d.owner == "Redowan Delowar"
+
+    d.database = {"servers": "localhost", "ports": [5000, 5001, 5002]}
+
+    assert isinstance(d.database, DotMap) is True
+
+    d.servers.beta.ip = "localhost"
+    assert d.servers.beta.ip == "localhost"
 
     # Check if dot notation deletion works
-    del d.j
+    del d.title
     with pytest.raises(MissingVariableError):
-        d.j
+        d.title
 
     # Normal [] notation features
-    d = {
-        "j": {
-            "k": {
-                "l": 1,
-            },
-        },
-    }
+    d = config_dict
     d = DotMap(d)
 
-    # Check if [] notation key access works
-    assert d["j"] == {"k": {"l": 1}}
+    # Check if the angle notation key access works
+    assert d["title"] == "TOML Example"
+    assert d["owner"]["name"] == "Tom Preston-Werner"
+    assert d["owner"]["dob"] == "1979-05-27"
 
-    # Check if [] notation assignment works
-    d["j"] = {"m": 2}
-    assert d["j"] == {"m": 2}
-
-    # Check if [] notation deletion works
-    del d["j"]
-    with pytest.raises(MissingVariableError):
-        d["j"]
-
-
-def test_deep_dotmap():
-    """Test the DeepDotMap class that recursively applies the DotMap class."""
-
-    # Test dot notation features
-    d = {
-        "j": {
-            "k": {
-                "l": 1,
-            },
-        },
+    assert isinstance(d["database"], DotMap) is True
+    assert d["database"] == {
+        "server": "192.168.1.1",
+        "ports": [8001, 8001, 8002],
+        "connection_max": 5000,
+        "enabled": True,
     }
+    assert d["database"]["server"] == "192.168.1.1"
+    assert d["database"]["ports"] == [8001, 8001, 8002]
+    assert d["database"]["enabled"] is True
 
-    d = DotMap(d)
+    assert isinstance(d["servers"], DotMap) is True
+    assert d["servers"] == {"alpha": {"ip": "10.0.0.1", "dc": "eqdc10"}, "beta": {"ip": "10.0.0.2", "dc": "eqdc10"}}
 
-    # DeepDotMap object is still an instance of the original DotMap object
-    assert isinstance(d, DotMap) is True
+    assert isinstance(d["servers"]["alpha"], DotMap) is True
+    assert d["servers"]["alpha"] == {"ip": "10.0.0.1", "dc": "eqdc10"}
 
-    # Check if nested objects are also instances of DotMap object
-    assert isinstance(d.j, DotMap) is True
-    assert isinstance(d.j.k, DotMap) is True
+    assert d["servers"]["alpha"]["ip"] == "10.0.0.1"
+    assert d["servers"]["alpha"]["dc"] == "eqdc10"
 
-    # Check if the chained dot notation key access works
-    assert d.j == {"k": {"l": 1}}
-    assert d.j.k == {"l": 1}
-    assert d.j.k.l == 1
+    # Check if angle notation assignment works
+    d["title"] = "Test Environ"
+    assert d["title"] == "Test Environ"
 
-    # Check if dot notation assignment works
-    d.j = DotMap({"m": 2})
-    assert d.j == {"m": 2}
+    d["owner"] = "Redowan Delowar"
+    assert d["owner"] == "Redowan Delowar"
 
-    d.j.m = 2
-    assert d.j.m == 2
+    d["database"] = {"servers": "localhost", "ports": [5000, 5001, 5002]}
 
-    # Check if dot notation deletion works
-    del d.j.m
+    assert isinstance(d["database"], DotMap) is True
+
+    d["servers"]["beta"]["ip"] = "localhost"
+    assert d["servers"]["beta"]["ip"] == "localhost"
+
+    # Check if angle notation deletion works
+    del d["title"]
     with pytest.raises(MissingVariableError):
-        d.j.m
-
-    # Normal [] notation features
-    d = {
-        "j": {
-            "k": {
-                "l": 1,
-            },
-        },
-    }
-    d = DotMap(d)
-
-    # Check if [] notation key access works
-    assert d["j"] == {"k": {"l": 1}}
-    assert d["j"]["k"] == {"l": 1}
-    assert d["j"]["k"]["l"] == 1
-
-    # Check if [] notation assignment works
-    d["j"] = {"m": 2}
-    assert d["j"]["m"] == 2
-
-    # Check if [] notation deletion works
-    del d["j"]["m"]
-    with pytest.raises(MissingVariableError):
-        d["j"]["m"]
+        d["title"]
 
 
 def test_konfik_toml(tmp_path):
     """Test the Konfik class for toml."""
 
-    toml_string = """
+    toml_str= """
     # This is a TOML document.
 
     title = "TOML Example"
@@ -157,14 +189,7 @@ def test_konfik_toml(tmp_path):
     data = [ ["gamma", "delta"], [1, 2] ]
 
     """
-    # Making a temporary directory to hold the toml file
-    # https://docs.pytest.org/en/stable/tmpdir.html#the-tmp-path-fixture
-    tmp_dir = tmp_path / "sub"
-    tmp_dir.mkdir()
-
-    # So the actual directory would be tmp_path/sub/test_config.toml
-    test_toml_path = tmp_dir / "test_config.toml"
-    test_toml_path.write_text(toml_string)
+    test_toml_path = make_config_path(tmp_path, toml_str, 'toml')
 
     # Load toml from the test toml path
     konfik = Konfik(config_path=test_toml_path)
@@ -197,7 +222,7 @@ def test_konfik_toml(tmp_path):
 def test_konfik_env(tmp_path):
     """Test the Konfik class for dotenv file."""
 
-    env_string = """
+    dotenv_str = """
     # This is an example .env document
 
     TITLE            = DOTENV_EXAMPLE
@@ -211,14 +236,8 @@ def test_konfik_env(tmp_path):
     DC               = eqdc10
 
     """
-    # Making a temporary directory to hold the env file
-    # https://docs.pytest.org/en/stable/tmpdir.html#the-tmp-path-fixture
-    tmp_dir = tmp_path / "sub"
-    tmp_dir.mkdir()
 
-    # So the actual directory would be tmp_path/sub/test_config.toml
-    test_env_path = tmp_dir / "test_config.env"
-    test_env_path.write_text(env_string)
+    test_env_path = make_config_path(tmp_path, dotenv_str, 'env')
 
     # Load toml from the test toml path
     konfik = Konfik(config_path=test_env_path)
@@ -243,7 +262,7 @@ def test_konfik_env(tmp_path):
 def test_konfik_json(tmp_path):
     """Test the Konfik class for json."""
 
-    json_string = """
+    json_str = """
         {
         "title": "JSON Example",
         "owner": {
@@ -284,14 +303,7 @@ def test_konfik_json(tmp_path):
         }
     }
     """
-    # Making a temporary directory to hold the toml file
-    # https://docs.pytest.org/en/stable/tmpdir.html#the-tmp-path-fixture
-    tmp_dir = tmp_path / "sub"
-    tmp_dir.mkdir()
-
-    # So the actual directory would be tmp_path/sub/test_config.toml
-    test_json_path = tmp_dir / "test_config.json"
-    test_json_path.write_text(json_string)
+    test_json_path = make_config_path(tmp_path, json_str, 'json')
 
     # Load toml from the test toml path
     konfik = Konfik(config_path=test_json_path)
@@ -324,7 +336,7 @@ def test_konfik_json(tmp_path):
 def test_konfik_yaml(tmp_path):
     """Test the Konfik class for yaml."""
 
-    json_string = """
+    yaml_str = """
 title: YAML Example
 owner:
   name: Tom Preston-Werner
@@ -351,16 +363,8 @@ clients:
     - - 1
       - 2
 """
-    # Making a temporary directory to hold the toml file
-    # https://docs.pytest.org/en/stable/tmpdir.html#the-tmp-path-fixture
-    tmp_dir = tmp_path / "sub"
-    tmp_dir.mkdir()
+    test_yaml_path = make_config_path(tmp_path, yaml_str, 'yaml')
 
-    # So the actual directory would be tmp_path/sub/test_config.toml
-    test_yaml_path = tmp_dir / "test_config.yaml"
-    test_yaml_path.write_text(json_string)
-
-    # Load toml from the test toml path
     konfik = Konfik(config_path=test_yaml_path)
 
     # Make sure the serializer works
@@ -397,7 +401,7 @@ def test_argument_parser(capsys):
 def test_konfik_cli(tmp_path, capfd):
     """Test the KonfikCLI class for toml."""
 
-    toml_string = """
+    toml_str = """
     # This is a TOML document.
 
     title = "TOML Example"
@@ -425,23 +429,14 @@ def test_konfik_cli(tmp_path, capfd):
     data = [ ["gamma", "delta"], [1, 2] ]
 
     """
-    # Making a temporary directory to hold the toml file
-    # https://docs.pytest.org/en/stable/tmpdir.html#the-tmp-path-fixture
-    tmp_dir = tmp_path / "sub"
-    tmp_dir.mkdir()
-
-    # So the actual directory would be tmp_path/sub/test_config.toml
-    test_toml_path = tmp_dir / "test_config.toml"
-    test_toml_path.write_text(toml_string)
+    test_toml_path = make_config_path(tmp_path, toml_str, 'toml')
 
     # Load toml from the test toml path
     konfik = Konfik(config_path=test_toml_path)
 
     konfik_cli = KonfikCLI(
         konfik=konfik,
-        args=Namespace(
-            path=test_toml_path, show=True, show_literal=False, var=False, version=False
-        ),
+        args=Namespace(path=test_toml_path, show=True, show_literal=False, var=False, version=False),
     )
 
     konfik_cli.konfik.show_config()
