@@ -7,7 +7,6 @@ from konfik import (
     Konfik,
     KonfikCLI,
     MissingVariableError,
-    apply_dotmap,
     cli_entrypoint,
 )
 
@@ -64,7 +63,7 @@ def test_dotmap():
         d["j"]
 
 
-def test_apply_dotmap():
+def test_deep_dotmap():
     """Test the DeepDotMap class that recursively applies the DotMap class."""
 
     # Test dot notation features
@@ -76,7 +75,7 @@ def test_apply_dotmap():
         },
     }
 
-    d = apply_dotmap(d)
+    d = DotMap(d)
 
     # DeepDotMap object is still an instance of the original DotMap object
     assert isinstance(d, DotMap) is True
@@ -91,8 +90,8 @@ def test_apply_dotmap():
     assert d.j.k.l == 1
 
     # Check if dot notation assignment works
-    d.j = apply_dotmap({"m": 2})
-    assert d.j == apply_dotmap({"m": 2})
+    d.j = DotMap({"m": 2})
+    assert d.j == {"m": 2}
 
     d.j.m = 2
     assert d.j.m == 2
@@ -110,7 +109,7 @@ def test_apply_dotmap():
             },
         },
     }
-    d = apply_dotmap(d)
+    d = DotMap(d)
 
     # Check if [] notation key access works
     assert d["j"] == {"k": {"l": 1}}
@@ -123,7 +122,7 @@ def test_apply_dotmap():
 
     # Check if [] notation deletion works
     del d["j"]["m"]
-    with pytest.raises(KeyError):
+    with pytest.raises(MissingVariableError):
         d["j"]["m"]
 
 
