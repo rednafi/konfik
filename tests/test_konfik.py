@@ -552,7 +552,9 @@ def test_konfik_cli(tmp_path, capfd):
 
     konfik_cli = KonfikCLI(
         konfik=konfik,
-        args=Namespace(path=test_toml_path, show=True, show_literal=False, var=False, version=False),
+        args=Namespace(
+            path=test_toml_path, show=True, show_literal=False, var=False, version=False
+        ),
     )
 
     konfik_cli.konfik.show_config()
