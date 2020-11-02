@@ -50,6 +50,19 @@ def test_dotmap(config_dict):
     # Test dot notation features
     d = DotMap(config_dict)
 
+    # Test iteration
+    for (k1, v1), (k2, v2) in zip(d.items(), config_dict.items()):
+        assert k1 == k2
+        assert v1 == v2
+
+    # Test pop
+    d.pop("title")
+    assert "title" not in d.keys()
+    d.title = "TOML Example"
+
+    # Test len
+    len(d) == len(config_dict)
+
     # Check if d is an instance of DotMap object
     assert isinstance(d, DotMap) is True
 
@@ -153,6 +166,32 @@ def test_dotmap(config_dict):
     del d["title"]
     with pytest.raises(MissingVariableError):
         d["title"]
+
+    # Check if popitem works
+    d.popitem()
+    assert len(d) < len(config_dict)
+
+    # Check if clear works
+    assert d.clear() is None
+
+    # Test _convert
+    m = {
+        "i": {
+            "j": [
+                {"1": 1},
+                {"2": 2},
+            ],
+            "k": (
+                {1: 1},
+                {2: 2},
+            ),
+        }
+    }
+
+    m = DotMap._convert(m)
+    assert isinstance(m.i, DotMap) is True
+    assert isinstance(m.i.j[0], DotMap) is True
+    assert isinstance(m.i.k[1], DotMap) is True
 
 
 def test_konfik(tmp_path):
@@ -513,9 +552,7 @@ def test_konfik_cli(tmp_path, capfd):
 
     konfik_cli = KonfikCLI(
         konfik=konfik,
-        args=Namespace(
-            path=test_toml_path, show=True, show_literal=False, var=False, version=False
-        ),
+        args=Namespace(path=test_toml_path, show=True, show_literal=False, var=False, version=False),
     )
 
     konfik_cli.konfik.show_config()
