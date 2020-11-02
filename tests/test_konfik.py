@@ -155,7 +155,7 @@ def test_dotmap(config_dict):
         d["title"]
 
 
-def test_konfik(tmp_path, capfd):
+def test_konfik(tmp_path):
     """Unit test different parts of the Konfik class."""
 
     toml_str = """
