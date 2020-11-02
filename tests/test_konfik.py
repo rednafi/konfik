@@ -2,7 +2,7 @@ from argparse import Namespace
 
 import pytest
 
-from konfik import DotMap, Konfik, KonfikCLI, MissingVariableError
+from konfik import DotMap, Konfik, KonfikCLI, MissingVariableError, MissingConfigError
 
 
 @pytest.fixture
@@ -155,7 +155,63 @@ def test_dotmap(config_dict):
         d["title"]
 
 
-def test_konfik_toml(tmp_path):
+def test_konfik(tmp_path, capfd):
+    """Unit test different parts of the Konfik class."""
+
+    toml_str = """
+    # This is a TOML document.
+
+    title = "TOML Example"
+
+    [owner]
+    name = "Tom Preston-Werner"
+    dob = 1979-05-27T07:32:00-08:00
+
+    [database]
+    server = "192.168.1.1"
+    ports = [ 8001, 8001, 8002 ]
+    connection_max = 5000
+    enabled = true
+
+    [servers]
+    [servers.alpha]
+    ip = "10.0.0.1"
+    dc = "eqdc10"
+
+    [servers.beta]
+    ip = "10.0.0.2"
+    dc = "eqdc10"
+
+    [clients]
+    data = [ ["gamma", "delta"], [1, 2] ]
+
+    """
+    test_toml_real_path = make_config_path(tmp_path, toml_str, "toml")
+    test_toml_fake_path = "some/fake/path/config.toml"
+
+    # Test if konfik raises MissingConfigError when the config is missing
+    with pytest.raises(MissingConfigError):
+        konfik = Konfik(config_path=test_toml_fake_path)
+
+    konfik = Konfik(config_path=test_toml_real_path)
+
+    # Test if a nested key can be resolved by get_by_path (used in the CLI)
+    assert konfik.get_by_path({"hello": {"world": 2}}, ["hello", "world"]) == 2
+
+    # Test if konfik can find the file path
+    assert konfik._config_path == test_toml_real_path
+
+    # Check raw config type
+    assert isinstance(konfik._config_raw, dict) is True
+
+    # Check transformed config type
+    assert isinstance(konfik.config, DotMap)
+
+    # Test if konfik can parse file extension from path
+    assert konfik._config_ext == "toml"
+
+
+def test_konfik_toml(tmp_path, capfd):
     """Test the Konfik class for toml."""
 
     toml_str = """
@@ -191,8 +247,16 @@ def test_konfik_toml(tmp_path):
     # Load toml from the test toml path
     konfik = Konfik(config_path=test_toml_path)
 
-    # Make sure the serializer works
+    # Make sure show_config works
     konfik.show_config()
+
+    # Make sure show_config_literal works
+    konfik.show_config_literal()
+
+    # Make sure show_var works
+    konfik.show_config_var("title")
+    out, _ = capfd.readouterr()
+    assert "TOML Example" in out
 
     # Test variable access with dot notation
     config = konfik.config
@@ -256,7 +320,7 @@ def test_konfik_env(tmp_path):
     assert config.DC == "eqdc10"
 
 
-def test_konfik_json(tmp_path):
+def test_konfik_json(tmp_path, capfd):
     """Test the Konfik class for json."""
 
     json_str = """
@@ -305,8 +369,16 @@ def test_konfik_json(tmp_path):
     # Load toml from the test toml path
     konfik = Konfik(config_path=test_json_path)
 
-    # Make sure the serializer works
+    # Make sure show_config works
     konfik.show_config()
+
+    # Make sure show_config_literal works
+    konfik.show_config_literal()
+
+    # Make sure show_var works
+    konfik.show_config_var("title")
+    out, _ = capfd.readouterr()
+    assert "JSON Example" in out
 
     # Test variable access with dot notation
     config = konfik.config
@@ -330,7 +402,7 @@ def test_konfik_json(tmp_path):
     assert config.clients.data == [["gamma", "delta"], [1, 2]]
 
 
-def test_konfik_yaml(tmp_path):
+def test_konfik_yaml(tmp_path, capfd):
     """Test the Konfik class for yaml."""
 
     yaml_str = """
@@ -364,8 +436,16 @@ clients:
 
     konfik = Konfik(config_path=test_yaml_path)
 
-    # Make sure the serializer works
+    # Make sure show_config works
     konfik.show_config()
+
+    # Make sure show_config_literal works
+    konfik.show_config_literal()
+
+    # Make sure show_var works
+    konfik.show_config_var("title")
+    out, _ = capfd.readouterr()
+    assert "YAML Example" in out
 
     # Test variable access with dot notation
     config = konfik.config
@@ -433,9 +513,7 @@ def test_konfik_cli(tmp_path, capfd):
 
     konfik_cli = KonfikCLI(
         konfik=konfik,
-        args=Namespace(
-            path=test_toml_path, show=True, show_literal=False, var=False, version=False
-        ),
+        args=Namespace(path=test_toml_path, show=True, show_literal=False, var=False, version=False),
     )
 
     konfik_cli.konfik.show_config()
