@@ -1,6 +1,6 @@
 .PHONY: help
 help:
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-25s\033[0m %s\n", $$1, $$2}'
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
 .PHONY: venvcheck ## Check if venv is active
 venvcheck:
@@ -31,8 +31,10 @@ publish: venvcheck	## Build and publish to PYPI
 	@poetry build
 	@poetry publish
 
-
 coverage: venvcheck ## Upload code coverage
 
 	pytest -v -s --cov-report=xml --cov=konfik tests/
-	
+
+export: venvcheck  ## Export pyproject.toml deps to requirements.txt
+	poetry export -f requirements.txt -o requirements.txt --without-hashes
+	poetry export -f requirements.txt -o requirements-dev.txt --without-hashes --dev
