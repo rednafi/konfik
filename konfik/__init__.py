@@ -10,6 +10,12 @@ from dotenv import dotenv_values, find_dotenv
 from rich.console import Console
 from rich.syntax import Syntax
 
+import sys, traceback
+from pygments import highlight
+from pygments.lexers import get_lexer_by_name,PythonLexer
+from pygments.formatters import TerminalFormatter
+from pprint import pformat
+
 __version__ = pkg_resources.get_distribution("konfik").version
 
 
@@ -25,6 +31,38 @@ class MissingVariableError(Exception):
 class MissingConfigError(Exception):
     """Error is raised when configuration file is not found. This
     encapsulates the built-in FileNotFoundError."""
+
+
+class Colorize:
+    def __init__(self):
+        self.formatter = TerminalFormatter()
+        sys.excepthook = self.colorize_traceback
+
+    def colorize_traceback(self, type, value, tb):
+        """Overriding default traceback with colorized exception hook."""
+        lexer = get_lexer_by_name("py3tb")
+        tbtext = "".join(traceback.format_exception(type, value, tb))
+
+        sys.stderr.write(highlight(tbtext, lexer, self.formatter))
+
+    def colorize_config(self, config_str, config_ext):
+        lexer_map = {
+            "toml": "toml",
+            "json": "json",
+            "env": "bash",
+        }
+
+        lexer = get_lexer_by_name(lexer_map.get(config_ext))
+        print(highlight(config_str, lexer, self.formatter))
+
+    def colorize_entity(self, entity):
+        """Colorize python entity."""
+        lexer = PythonLexer()
+        print(highlight(pformat(entity), lexer, self.formatter))
+
+
+
+colorize = Colorize()
 
 
 class DotMap(dict):
@@ -89,15 +127,14 @@ class Konfik:
 
     def show_config(self):
         """Printing evaluated config file as a Python dict."""
-        console.print(self._config_raw)
+        colorize.colorize_entity(self._config_raw)
 
     def show_config_literal(self):
         """Print literal config file contents."""
 
         with open(self._config_path) as f:
             config_str = f.read()
-            syntax = Syntax(config_str, f"{self._config_ext}", theme="ansi_dark")
-            console.print(syntax)
+            colorize.colorize_config(config_str, self._config_ext)
 
     def show_config_var(self, query):
         """Print config variable."""
@@ -105,7 +142,7 @@ class Konfik:
         if isinstance(query, str):
             query_lst = query.split(".")
             value = self.get_by_path(self._config_raw, query_lst)
-            console.print(value)
+            colorize.colorize_entity(value)
 
     def _load_config(self):
         """Load config.toml file."""
@@ -127,9 +164,7 @@ class Konfik:
                 return self._load_yaml(config_path)
 
             else:
-                raise NotImplementedError(
-                    f"Config type '{self._config_ext}' is not supported"
-                )
+                raise NotImplementedError(f"Config type '{self._config_ext}' is not supported")
 
     @staticmethod
     def _load_env(config_path):
@@ -138,9 +173,7 @@ class Konfik:
         try:
             # Instead of using load_dotenv(), this is done to avoid recursively searching for dotenv file.
             # There is no element of surprise. If the file is not found in the explicit path, this will raise an error!
-            dotenv_file = find_dotenv(
-                filename=config_path, raise_error_if_not_found=True, usecwd=True
-            )
+            dotenv_file = find_dotenv(filename=config_path, raise_error_if_not_found=True, usecwd=True)
 
             if dotenv_file:
                 config = dotenv_values(dotenv_file)
@@ -186,9 +219,7 @@ class Konfik:
         try:
             return reduce(operator.getitem, key_list, dct)
         except KeyError as e:
-            raise MissingVariableError(
-                f"No such variable '{e.args[0]}' exists"
-            ) from None
+            raise MissingVariableError(f"No such variable '{e.args[0]}' exists") from None
 
 
 class KonfikCLI:
