@@ -1,5 +1,3 @@
-from argparse import Namespace
-
 import pytest
 
 from konfik import DotMap, Konfik, KonfikCLI, MissingConfigError, MissingVariableError
