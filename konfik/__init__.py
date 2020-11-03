@@ -170,7 +170,9 @@ class Konfik:
                 return self._load_yaml(config_path)
 
             else:
-                raise NotImplementedError(f"Config type '{self._config_ext}' is not supported")
+                raise NotImplementedError(
+                    f"Config type '{self._config_ext}' is not supported"
+                )
 
     @staticmethod
     def _load_env(config_path):
@@ -179,7 +181,9 @@ class Konfik:
         try:
             # Instead of using load_dotenv(), this is done to avoid recursively searching for dotenv file.
             # There is no element of surprise. If the file is not found in the explicit path, this will raise an error!
-            dotenv_file = find_dotenv(filename=config_path, raise_error_if_not_found=True, usecwd=True)
+            dotenv_file = find_dotenv(
+                filename=config_path, raise_error_if_not_found=True, usecwd=True
+            )
 
             if dotenv_file:
                 config = dotenv_values(dotenv_file)
@@ -225,7 +229,9 @@ class Konfik:
         try:
             return reduce(operator.getitem, key_list, dct)
         except KeyError as e:
-            raise MissingVariableError(f"No such variable '{e.args[0]}' exists") from None
+            raise MissingVariableError(
+                f"No such variable '{e.args[0]}' exists"
+            ) from None
 
 
 class KonfikCLI:

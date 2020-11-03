@@ -348,5 +348,5 @@ def test_konfik_cli(tmp_path, toml_str, capfd):
 
     # Load toml from the test toml path
     konfik_cli = KonfikCLI()
-    #parser = konfik_cli.build_parser()
-    #args = parser.parse_args()
+    # parser = konfik_cli.build_parser()
+    # args = parser.parse_args()

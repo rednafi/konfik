@@ -1,5 +1,6 @@
 import pytest
 
+
 @pytest.fixture()
 def config_dict():
     """Sample config dict."""
@@ -58,6 +59,7 @@ def toml_str():
     """
 
     return toml_str
+
 
 @pytest.fixture
 def dotenv_str():
@@ -122,6 +124,7 @@ def json_str():
     }
     """
     return json_str
+
 
 @pytest.fixture
 def yaml_str():
