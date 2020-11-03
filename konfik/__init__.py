@@ -18,31 +18,39 @@ __version__ = pkg_resources.get_distribution("konfik").version
 
 
 class Colorize:
+    """Colorize tracebacks, variables and config literals."""
+
     def __init__(self):
         self.formatter = TerminalFormatter()
         sys.excepthook = self.colorize_traceback
 
     def colorize_traceback(self, type, value, tb):
-        """Overriding default traceback with colorized exception hook."""
+        """Colorize traceback --
+        used when an exception is raised."""
+
         lexer = get_lexer_by_name("py3tb")
         tbtext = "".join(traceback.format_exception(type, value, tb))
 
+        # Error needs to go to stderr
         sys.stderr.write(highlight(tbtext, lexer, self.formatter))
 
     def colorize_config(self, config_str, config_ext):
-        """Colorize config string."""
+        """Colorize config string --
+        used while printing the config literal."""
 
         lexer_map = {
             "toml": "toml",
             "json": "json",
             "env": "bash",
+            "yaml": "yaml",
         }
 
         lexer = get_lexer_by_name(lexer_map.get(config_ext))
         print(highlight(config_str, lexer, self.formatter))
 
     def colorize_entity(self, entity):
-        """Colorize python entity."""
+        """Colorize python entities --
+        used while printing a variable or python object."""
 
         lexer = PythonLexer()
         entity = pformat(entity)
@@ -124,6 +132,7 @@ class Konfik:
 
     def show_config(self):
         """Printing evaluated config file as a Python dict."""
+
         colorize.colorize_entity(self._config_raw)
 
     def show_config_literal(self):
@@ -161,9 +170,7 @@ class Konfik:
                 return self._load_yaml(config_path)
 
             else:
-                raise NotImplementedError(
-                    f"Config type '{self._config_ext}' is not supported"
-                )
+                raise NotImplementedError(f"Config type '{self._config_ext}' is not supported")
 
     @staticmethod
     def _load_env(config_path):
@@ -172,9 +179,7 @@ class Konfik:
         try:
             # Instead of using load_dotenv(), this is done to avoid recursively searching for dotenv file.
             # There is no element of surprise. If the file is not found in the explicit path, this will raise an error!
-            dotenv_file = find_dotenv(
-                filename=config_path, raise_error_if_not_found=True, usecwd=True
-            )
+            dotenv_file = find_dotenv(filename=config_path, raise_error_if_not_found=True, usecwd=True)
 
             if dotenv_file:
                 config = dotenv_values(dotenv_file)
@@ -220,65 +225,64 @@ class Konfik:
         try:
             return reduce(operator.getitem, key_list, dct)
         except KeyError as e:
-            raise MissingVariableError(
-                f"No such variable '{e.args[0]}' exists"
-            ) from None
+            raise MissingVariableError(f"No such variable '{e.args[0]}' exists") from None
 
 
 class KonfikCLI:
     """Access and show config variables using CLI."""
 
-    def __init__(self, konfik, args):
-        self.konfik = konfik
-        self.args = args
+    def build_parser(self):
+        parser = argparse.ArgumentParser(description="Konfik CLI")
 
-    @staticmethod
-    def _version(version=__version__):
-        console.print(version)
+        # Add arguments
+        parser.add_argument("--path", help="add config file path")
+        parser.add_argument(
+            "--show",
+            action="store_true",
+            help="print config as a dict",
+        )
+        parser.add_argument(
+            "--show-literal",
+            action="store_true",
+            help="print config file content literally",
+        )
+        parser.add_argument("--var", help="print config variable")
+        parser.add_argument(
+            "--version",
+            action="store_true",
+            help="print konfik-cli version number",
+        )
 
-    def run_cli(self):
-        if self.args.show is True:
-            self.konfik.show_config()
-        elif self.args.show_literal is True:
-            self.konfik.show_config_literal()
-        elif self.args.var:
-            self.konfik.show_config_var(self.args.var)
-        elif self.args.version is True:
-            self._version()
+        return parser
+
+    def raise_arg_error(self, parser, args):
+        # Deal with argument dependencies
+        for k, v in vars(args).items():
+            if k != "version" and k != "path":
+                if v and not args.path:
+                    parser.error(f"The --{k} argument requires the --path argument")
+
+    def trigger_handler(self, args, konfik_cls=Konfik, version=__version__):
+        if args.version:
+            colorize.colorize_entity(version)
+
+        if args.path:
+            konfik = konfik_cls(args.path)
+
+            if args.show:
+                konfik.show_config()
+            elif args.show_literal:
+                konfik.show_config_literal()
+            elif args.var:
+                konfik.show_config_var(args.var)
 
 
 def cli_entrypoint():
     """CLI entrypoint callable."""
 
-    parser = argparse.ArgumentParser(description="Konfik CLI")
-    parser._action_groups.pop()
-    required = parser.add_argument_group("required arguments")
-    optional = parser.add_argument_group("optional arguments")
-
-    # Add mandatory arguments
-    required.add_argument("--path", required=True, help="add config file path")
-
-    # Add optional arguments
-    optional.add_argument(
-        "--show",
-        action="store_true",
-        help="print config as a dict",
-    )
-    optional.add_argument(
-        "--show-literal",
-        action="store_true",
-        help="print config file content literally",
-    )
-    optional.add_argument("--var", help="print config variable")
-    optional.add_argument(
-        "--version",
-        action="store_true",
-        help="print konfik-cli version number",
-    )
-
+    konfik_cli = KonfikCLI()
+    parser = konfik_cli.build_parser()
     args = parser.parse_args()
-    trigger = [args.show, args.show_literal, args.var, args.version]
-    if any(trigger):
-        konfik = Konfik(args.path)
-        konfik_cli = KonfikCLI(konfik, args)
-        konfik_cli.run_cli()
+
+    konfik_cli.raise_arg_error(parser, args)
+    konfik_cli.trigger_handler(args)

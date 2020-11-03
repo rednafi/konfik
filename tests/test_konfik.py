@@ -5,33 +5,6 @@ import pytest
 from konfik import DotMap, Konfik, KonfikCLI, MissingConfigError, MissingVariableError
 
 
-@pytest.fixture
-def config_dict():
-    """Sample config dict."""
-
-    d = {
-        "title": "TOML Example",
-        "owner": {
-            "name": "Tom Preston-Werner",
-            "dob": "1979-05-27",
-        },
-        "database": {
-            "server": "192.168.1.1",
-            "ports": [8001, 8001, 8002],
-            "connection_max": 5000,
-            "enabled": True,
-        },
-        "servers": {
-            "alpha": {"ip": "10.0.0.1", "dc": "eqdc10"},
-            "beta": {"ip": "10.0.0.2", "dc": "eqdc10"},
-        },
-        "clients": {
-            "data": [["gamma", "delta"], [1, 2]],
-        },
-    }
-    return d
-
-
 def make_config_path(tmp_path, config_str, config_ext):
     # Making a temporary directory to hold the config file
     # https://docs.pytest.org/en/stable/tmpdir.html#the-tmp-path-fixture
@@ -194,37 +167,9 @@ def test_dotmap(config_dict):
     assert isinstance(m.i.k[1], DotMap) is True
 
 
-def test_konfik(tmp_path):
+def test_konfik(tmp_path, toml_str):
     """Unit test different parts of the Konfik class."""
 
-    toml_str = """
-    # This is a TOML document.
-
-    title = "TOML Example"
-
-    [owner]
-    name = "Tom Preston-Werner"
-    dob = 1979-05-27T07:32:00-08:00
-
-    [database]
-    server = "192.168.1.1"
-    ports = [ 8001, 8001, 8002 ]
-    connection_max = 5000
-    enabled = true
-
-    [servers]
-    [servers.alpha]
-    ip = "10.0.0.1"
-    dc = "eqdc10"
-
-    [servers.beta]
-    ip = "10.0.0.2"
-    dc = "eqdc10"
-
-    [clients]
-    data = [ ["gamma", "delta"], [1, 2] ]
-
-    """
     test_toml_real_path = make_config_path(tmp_path, toml_str, "toml")
     test_toml_fake_path = "some/fake/path/config.toml"
 
@@ -250,37 +195,9 @@ def test_konfik(tmp_path):
     assert konfik._config_ext == "toml"
 
 
-def test_konfik_toml(tmp_path, capfd):
+def test_konfik_toml(tmp_path, toml_str, capfd):
     """Test the Konfik class for toml."""
 
-    toml_str = """
-    # This is a TOML document.
-
-    title = "TOML Example"
-
-    [owner]
-    name = "Tom Preston-Werner"
-    dob = 1979-05-27T07:32:00-08:00
-
-    [database]
-    server = "192.168.1.1"
-    ports = [ 8001, 8001, 8002 ]
-    connection_max = 5000
-    enabled = true
-
-    [servers]
-    [servers.alpha]
-    ip = "10.0.0.1"
-    dc = "eqdc10"
-
-    [servers.beta]
-    ip = "10.0.0.2"
-    dc = "eqdc10"
-
-    [clients]
-    data = [ ["gamma", "delta"], [1, 2] ]
-
-    """
     test_toml_path = make_config_path(tmp_path, toml_str, "toml")
 
     # Load toml from the test toml path
@@ -319,23 +236,8 @@ def test_konfik_toml(tmp_path, capfd):
     assert config.clients.data == [["gamma", "delta"], [1, 2]]
 
 
-def test_konfik_env(tmp_path):
+def test_konfik_env(tmp_path, dotenv_str):
     """Test the Konfik class for dotenv file."""
-
-    dotenv_str = """
-    # This is an example .env document
-
-    TITLE            = DOTENV_EXAMPLE
-    NAME             = TOM
-    DOB              = 1994-03-24T07:32:00-08:00
-    SERVER           = 192.168.1.1
-    PORT             = 8001
-    CONNECTION_MAX   = 5000
-    ENABLED          = True
-    IP               = 10.0.0.1
-    DC               = eqdc10
-
-    """
 
     test_env_path = make_config_path(tmp_path, dotenv_str, "env")
 
@@ -359,50 +261,9 @@ def test_konfik_env(tmp_path):
     assert config.DC == "eqdc10"
 
 
-def test_konfik_json(tmp_path, capfd):
+def test_konfik_json(tmp_path, json_str, capfd):
     """Test the Konfik class for json."""
 
-    json_str = """
-        {
-        "title": "JSON Example",
-        "owner": {
-            "name": "Tom Preston-Werner",
-            "dob": "1979-05-27"
-        },
-        "database": {
-            "server": "192.168.1.1",
-            "ports": [
-                8001,
-                8001,
-                8002
-            ],
-            "connection_max": 5000,
-            "enabled": true
-        },
-        "servers": {
-            "alpha": {
-                "ip": "10.0.0.1",
-                "dc": "eqdc10"
-            },
-            "beta": {
-                "ip": "10.0.0.2",
-                "dc": "eqdc10"
-            }
-        },
-        "clients": {
-            "data": [
-                [
-                    "gamma",
-                    "delta"
-                ],
-                [
-                    1,
-                    2
-                ]
-            ]
-        }
-    }
-    """
     test_json_path = make_config_path(tmp_path, json_str, "json")
 
     # Load toml from the test toml path
@@ -441,36 +302,9 @@ def test_konfik_json(tmp_path, capfd):
     assert config.clients.data == [["gamma", "delta"], [1, 2]]
 
 
-def test_konfik_yaml(tmp_path, capfd):
+def test_konfik_yaml(tmp_path, yaml_str, capfd):
     """Test the Konfik class for yaml."""
 
-    yaml_str = """
-title: YAML Example
-owner:
-  name: Tom Preston-Werner
-  dob: 1979-05-27T15:32:00.000Z
-database:
-  server: 192.168.1.1
-  ports:
-    - 8001
-    - 8001
-    - 8002
-  connection_max: 5000
-  enabled: true
-servers:
-  alpha:
-    ip: 10.0.0.1
-    dc: eqdc10
-  beta:
-    ip: 10.0.0.2
-    dc: eqdc10
-clients:
-  data:
-    - - gamma
-      - delta
-    - - 1
-      - 2
-"""
     test_yaml_path = make_config_path(tmp_path, yaml_str, "yaml")
 
     konfik = Konfik(config_path=test_yaml_path)
@@ -507,68 +341,12 @@ clients:
     assert config.clients.data == [["gamma", "delta"], [1, 2]]
 
 
-def test_argument_parser(capsys):
-
-    captured = capsys.readouterr()
-    result = captured.out
-    print(result)
-
-
-def test_konfik_cli(tmp_path, capfd):
+def test_konfik_cli(tmp_path, toml_str, capfd):
     """Test the KonfikCLI class for toml."""
 
-    toml_str = """
-    # This is a TOML document.
-
-    title = "TOML Example"
-
-    [owner]
-    name = "Tom Preston-Werner"
-    dob = 1979-05-27T07:32:00-08:00
-
-    [database]
-    server = "192.168.1.1"
-    ports = [ 8001, 8001, 8002 ]
-    connection_max = 5000
-    enabled = true
-
-    [servers]
-    [servers.alpha]
-    ip = "10.0.0.1"
-    dc = "eqdc10"
-
-    [servers.beta]
-    ip = "10.0.0.2"
-    dc = "eqdc10"
-
-    [clients]
-    data = [ ["gamma", "delta"], [1, 2] ]
-
-    """
     test_toml_path = make_config_path(tmp_path, toml_str, "toml")
 
     # Load toml from the test toml path
-    konfik = Konfik(config_path=test_toml_path)
-
-    konfik_cli = KonfikCLI(
-        konfik=konfik,
-        args=Namespace(
-            path=test_toml_path, show=True, show_literal=False, var=False, version=False
-        ),
-    )
-
-    konfik_cli.konfik.show_config()
-
-    konfik_cli = KonfikCLI(
-        konfik=konfik,
-        args=Namespace(path=test_toml_path, show=None, version=True),
-    )
-
-    konfik_cli._version("5.5.5")
-    out, _ = capfd.readouterr()
-    assert "title" in out
-    assert "owner" in out
-    assert "client" in out
-    assert "database" in out
-
-    assert "5.5" in out
+    konfik_cli = KonfikCLI()
+    #parser = konfik_cli.build_parser()
+    #args = parser.parse_args()
