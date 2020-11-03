@@ -122,14 +122,14 @@ konfik --help
 This will reveal the options associated with the CLI tool:
 
 ```
-usage: konfik [-h] --path PATH [--show] [--show-literal] [--var VAR] [--version]
+usage: konfik [-h] [--path PATH] [--show] [--show-literal] [--var VAR]
+        [--version]
 
 Konfik CLI
 
-required arguments:
-  --path PATH     add custom config file path
-
 optional arguments:
+  -h, --help      show this help message and exit
+  --path PATH     add config file path
   --show          print config as a dict
   --show-literal  print config file content literally
   --var VAR       print config variable
@@ -160,7 +160,7 @@ konfik --path=examples/config.env --var servers.alpha.ip
 * Write a simple unit test for your change
 * Run the linter via:
     ```
-    make linter
+    make lint
     ```
 * Send a pull request against the master branch
 

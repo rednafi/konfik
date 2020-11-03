@@ -53,7 +53,7 @@ class Colorize:
         used while printing a variable or python object."""
 
         lexer = PythonLexer()
-        entity = pformat(entity)
+        entity = pformat(entity, indent=1, compact=True, width=60)
         print(highlight(entity, lexer, self.formatter))
 
 
