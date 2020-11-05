@@ -1,6 +1,14 @@
 import pytest
 
-from konfik import DotMap, Konfik, KonfikCLI, MissingConfigError, MissingVariableError, Colorize
+from konfik import (
+    Colorize,
+    DotMap,
+    Konfik,
+    KonfikCLI,
+    MissingConfigError,
+    MissingVariableError,
+)
+
 
 def test_colorize(config_dict, capfd):
     colorize = Colorize()
