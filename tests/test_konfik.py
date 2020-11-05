@@ -1,6 +1,15 @@
 import pytest
 
-from konfik import DotMap, Konfik, KonfikCLI, MissingConfigError, MissingVariableError
+from konfik import DotMap, Konfik, KonfikCLI, MissingConfigError, MissingVariableError, Colorize
+
+def test_colorize(config_dict, capfd):
+    colorize = Colorize()
+    colorize.colorize_entity(config_dict)
+    out, _ = capfd.readouterr()
+    assert "{\x1b[33m'\x1b[39;49;00m\x1b[33mclients\x1b[39;49;00m\x1b[33m" in out
+    colorize.colorize_title("Hello from the other side!")
+    out, _ = capfd.readouterr()
+    assert "Hello from the" in out
 
 
 def make_config_path(tmp_path, config_str, config_ext):
