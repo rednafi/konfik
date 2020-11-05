@@ -122,10 +122,9 @@ konfik --help
 This will reveal the options associated with the CLI tool:
 
 ```
-usage: konfik [-h] [--path PATH] [--show] [--show-literal] [--var VAR]
-        [--version]
+Konfik -- The strangely familiar config parser ⚙️
 
-Konfik CLI
+usage: konfik [-h] [--path PATH] [--show] [--show-literal] [--var VAR] [--version]
 
 optional arguments:
   -h, --help      show this help message and exit

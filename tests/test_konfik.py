@@ -193,6 +193,7 @@ def test_konfik(tmp_path, toml_str):
     assert konfik._config_ext == "toml"
 
 
+
 def test_konfik_toml(tmp_path, toml_str, capfd):
     """Test the Konfik class for toml."""
 
@@ -233,6 +234,9 @@ def test_konfik_toml(tmp_path, toml_str, capfd):
 
     assert config.clients.data == [["gamma", "delta"], [1, 2]]
 
+    with pytest.raises(MissingVariableError):
+        config.fakekey
+
 
 def test_konfik_env(tmp_path, dotenv_str):
     """Test the Konfik class for dotenv file."""
@@ -257,6 +261,10 @@ def test_konfik_env(tmp_path, dotenv_str):
     assert config.ENABLED == "True"
     assert config.IP == "10.0.0.1"
     assert config.DC == "eqdc10"
+
+
+    with pytest.raises(MissingVariableError):
+        config.fakekey
 
 
 def test_konfik_json(tmp_path, json_str, capfd):
@@ -300,6 +308,10 @@ def test_konfik_json(tmp_path, json_str, capfd):
     assert config.clients.data == [["gamma", "delta"], [1, 2]]
 
 
+    with pytest.raises(MissingVariableError):
+        config.fakekey
+
+
 def test_konfik_yaml(tmp_path, yaml_str, capfd):
     """Test the Konfik class for yaml."""
 
@@ -339,6 +351,10 @@ def test_konfik_yaml(tmp_path, yaml_str, capfd):
     assert config.clients.data == [["gamma", "delta"], [1, 2]]
 
 
+    with pytest.raises(MissingVariableError):
+        config.fakekey
+
+
 def test_konfik_cli(tmp_path, toml_str, capfd):
     """Test the KonfikCLI class for toml."""
 
@@ -346,5 +362,5 @@ def test_konfik_cli(tmp_path, toml_str, capfd):
 
     # Load toml from the test toml path
     konfik_cli = KonfikCLI()
-    # parser = konfik_cli.build_parser()
-    # args = parser.parse_args()
+    parser = konfik_cli.build_parser()
+    #args = parser.parse_args()
