@@ -37,7 +37,7 @@ pip install konfik
 
 ## 💡 Usage
 
-Let's see how you can parse a TOML config file and access the variables there. For demonstration, we'll be using the following `config.toml` file:
+Let's see how you can parse a TOML config file and access the configuration variables. For demonstration, we'll be using the following `config.toml` file:
 
 ```toml
 # Contents of `config.toml`
@@ -61,7 +61,7 @@ dob = 1979-05-27T07:32:00-08:00 # First class dates
 data = [ ["gamma", "delta"], [1, 2] ]
 ```
 
-To parse this in Python:
+Load the above config file and access the variables using dot notation:
 
 ```python
 from pathlib import Path
@@ -135,33 +135,33 @@ optional arguments:
   --version       print konfik-cli version number
 ```
 
-To inspect the value of a specific variable in a `config.toml` file you can run:
+To inspect the value of a specific variable in a `./config.toml` file you can run:
 
 ```
-konfik --path=examples/config.env --var servers.alpha.ip
+konfik --path=config.toml --var=servers.alpha.ip
 ```
 
 ## 🎉 Contribution
 
-* Clone the repo
+* Clone the repo.
 * Spin up and activate your virtual environment. You can use anything between Python 3.6 to Python 3.9.
-* Install [poetry](https://python-poetry.org/docs/#installation)
+* Install [poetry](https://python-poetry.org/docs/#installation).
 * Install the dependencies via:
     ```
     poetry install
     ```
-* Make your changes to the `konfik/__init__.py` file
+* Make your changes to the `konfik/__init__.py` file.
 
-* Run the tests via the following command. Make sure you've Python 3.6 - Python 3.9 installed, otherwise **Tox** would throw an error.
+* Run the tests via the following command. Make sure you've Python 3.6 - Python 3.9 installed on your system, otherwise **Tox** would throw an error.
     ```
     make test
     ```
-* Write a simple unit test for your change
+* Write a simple unit test for your change.
 * Run the linter via:
     ```
     make lint
     ```
-* Send a pull request against the master branch
+* Send a pull request against the master branch.
 
 <div align="center">
 <i> 🍰 </i>
