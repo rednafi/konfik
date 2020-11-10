@@ -276,9 +276,11 @@ class KonfikCLI:
     def raise_arg_error(self, parser, args):
         # Deal with argument dependencies
         for k, v in vars(args).items():
-            if k != "version" and k != "path":
-                if v and not args.path:
-                    parser.error(f"The --{k} argument requires the --path argument")
+            if k == "version" and k == "path":
+                continue
+
+            if v and not args.path:
+                parser.error(f"The --{k} argument requires the --path argument")
 
     def trigger_handler(self, args, konfik_cls=Konfik, version=__version__):
         if args.version:
