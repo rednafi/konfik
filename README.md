@@ -141,28 +141,6 @@ To inspect the value of a specific variable in a `./config.toml` file you can ru
 konfik --path=config.toml --var=servers.alpha.ip
 ```
 
-## 🎉 Contribution
-
-* Clone the repo.
-* Spin up and activate your virtual environment. You can use anything between Python 3.6 to Python 3.9.
-* Install [poetry](https://python-poetry.org/docs/#installation).
-* Install the dependencies via:
-    ```
-    poetry install
-    ```
-* Make your changes to the `konfik/__init__.py` file.
-
-* Run the tests via the following command. Make sure you've Python 3.6 - Python 3.9 installed on your system, otherwise **Tox** would throw an error.
-    ```
-    make test
-    ```
-* Write a simple unit test for your change.
-* Run the linter via:
-    ```
-    make lint
-    ```
-* Send a pull request against the master branch.
-
 <div align="center">
 <i> 🍰 </i>
 </div>
