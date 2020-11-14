@@ -130,7 +130,7 @@ class Konfik:
 
     def __init__(
         self,
-        config_path="config.toml",
+        config_path,
         dotmap_cls=DotMap,
     ):
         self._config_path = config_path

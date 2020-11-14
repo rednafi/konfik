@@ -188,6 +188,10 @@ def test_konfik(tmp_path, toml_str):
     test_toml_real_path = make_config_path(tmp_path, toml_str, "toml")
     test_toml_fake_path = "some/fake/path/config.toml"
 
+    # Test if konfik raises TypeError when an argument is missing
+    with pytest.raises(TypeError):
+        konfik = Konfik()
+
     # Test if konfik raises MissingConfigError when the config is missing
     with pytest.raises(MissingConfigError):
         konfik = Konfik(config_path=test_toml_fake_path)
