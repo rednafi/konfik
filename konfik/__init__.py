@@ -14,6 +14,8 @@ from pygments import highlight
 from pygments.formatters import TerminalFormatter
 from pygments.lexers import PythonLexer, get_lexer_by_name
 
+__all__ = ["Konfik"]
+
 __version__ = pkg_resources.get_distribution("konfik").version
 
 
