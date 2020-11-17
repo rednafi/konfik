@@ -1,7 +1,7 @@
 # Package manager metadata
 [tool.poetry]
 name = "konfik"
-version = "2.0.2"
+version = "2.0.3"
 description = "The Strangely Familiar Config Parser"
 authors = ["rednafi <redowan.nafi@gmail.com>"]
 license = "MIT"
