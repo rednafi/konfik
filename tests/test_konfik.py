@@ -21,12 +21,12 @@ def test_colorize(config_dict, capfd):
 
 
 def make_config_path(tmp_path, config_str, config_ext):
-    # Making a temporary directory to hold the config file
+    # Making a temporary directory to hold the config file.
     # https://docs.pytest.org/en/stable/tmpdir.html#the-tmp-path-fixture
     tmp_dir = tmp_path / "sub"
     tmp_dir.mkdir()
 
-    # So the actual directory would be tmp_path/sub/test_config.extension
+    # So the actual directory would be `tmp_path/sub/test_config.extension`.
     test_config_path = tmp_dir / f"test_config.{config_ext}"
     test_config_path.write_text(config_str)
     return test_config_path
@@ -35,29 +35,29 @@ def make_config_path(tmp_path, config_str, config_ext):
 def test_dotmap(config_dict):
     """Test the DotMap class."""
 
-    # Test dot notation features
+    # Test dot notation features.
     d = DotMap(config_dict)
 
-    # Test iteration
+    # Test iteration.
     for (k1, v1), (k2, v2) in zip(d.items(), config_dict.items()):
         assert k1 == k2
         assert v1 == v2
 
-    # Test pop
+    # Test pop.
     d.pop("title")
     assert "title" not in d.keys()
     d.title = "TOML Example"
 
-    # Test len
+    # Test len.
     len(d) == len(config_dict)
 
-    # Check if d is an instance of DotMap object
+    # Check if d is an instance of `DotMap` object.
     assert isinstance(d, DotMap) is True
 
-    # Check if nested dictionary instance is also DotMap
+    # Check if the nested dictionary instance is also a `DotMap` object.
     assert isinstance(d["database"], DotMap) is True
 
-    # Check if the dot notation key access works
+    # Check if the dot notation key access works.
     assert d.title == "TOML Example"
     assert d.owner.name == "Tom Preston-Werner"
     assert d.owner.dob == "1979-05-27"
@@ -85,7 +85,7 @@ def test_dotmap(config_dict):
     assert d.servers.alpha.ip == "10.0.0.1"
     assert d.servers.alpha.dc == "eqdc10"
 
-    # Check if dot notation assignment works
+    # Check if dot notation assignment works.
     d.title = "Test Environ"
     assert d.title == "Test Environ"
 
@@ -99,16 +99,16 @@ def test_dotmap(config_dict):
     d.servers.beta.ip = "localhost"
     assert d.servers.beta.ip == "localhost"
 
-    # Check if dot notation deletion works
+    # Check if dot notation deletion works.
     del d.title
     with pytest.raises(MissingVariableError):
         d.title
 
-    # Normal [] notation features
+    # Normal [] notation features.
     d = config_dict
     d = DotMap(d)
 
-    # Check if the angle notation key access works
+    # Check if the angle notation key access works.
     assert d["title"] == "TOML Example"
     assert d["owner"]["name"] == "Tom Preston-Werner"
     assert d["owner"]["dob"] == "1979-05-27"
@@ -136,7 +136,7 @@ def test_dotmap(config_dict):
     assert d["servers"]["alpha"]["ip"] == "10.0.0.1"
     assert d["servers"]["alpha"]["dc"] == "eqdc10"
 
-    # Check if angle notation assignment works
+    # Check if angle notation assignment works.
     d["title"] = "Test Environ"
     assert d["title"] == "Test Environ"
 
@@ -150,19 +150,19 @@ def test_dotmap(config_dict):
     d["servers"]["beta"]["ip"] = "localhost"
     assert d["servers"]["beta"]["ip"] == "localhost"
 
-    # Check if angle notation deletion works
+    # Check if angle notation deletion works.
     del d["title"]
     with pytest.raises(MissingVariableError):
         d["title"]
 
-    # Check if popitem works
+    # Check if `popitem` works.
     d.popitem()
     assert len(d) < len(config_dict)
 
-    # Check if clear works
+    # Check if `clear` works.
     assert d.clear() is None
 
-    # Test _convert
+    # Test _convert.
     m = {
         "i": {
             "j": [
@@ -188,29 +188,29 @@ def test_konfik(tmp_path, toml_str):
     test_toml_real_path = make_config_path(tmp_path, toml_str, "toml")
     test_toml_fake_path = "some/fake/path/config.toml"
 
-    # Test if konfik raises TypeError when an argument is missing
+    # Test if konfik raises `TypeError` when an argument is missing.
     with pytest.raises(TypeError):
         konfik = Konfik()
 
-    # Test if konfik raises MissingConfigError when the config is missing
+    # Test if konfik raises `MissingConfigError` when the config is missing.
     with pytest.raises(MissingConfigError):
         konfik = Konfik(config_path=test_toml_fake_path)
 
     konfik = Konfik(config_path=test_toml_real_path)
 
-    # Test if a nested key can be resolved by get_by_path (used in the CLI)
+    # Test if a nested key can be resolved by `get_by_path` (used in the CLI).
     assert konfik.get_by_path({"hello": {"world": 2}}, ["hello", "world"]) == 2
 
-    # Test if konfik can find the file path
+    # Test if konfik can find the file path.
     assert konfik._config_path == test_toml_real_path
 
-    # Check raw config type
+    # Check raw config type.
     assert isinstance(konfik._config_raw, dict) is True
 
-    # Check transformed config type
+    # Check transformed config type.
     assert isinstance(konfik.config, DotMap)
 
-    # Test if konfik can parse file extension from path
+    # Test if konfik can parse file extension from path.
     assert konfik._config_ext == "toml"
 
 
@@ -219,21 +219,21 @@ def test_konfik_toml(tmp_path, toml_str, capfd):
 
     test_toml_path = make_config_path(tmp_path, toml_str, "toml")
 
-    # Load toml from the test toml path
+    # Load toml from the test toml path.
     konfik = Konfik(config_path=test_toml_path)
 
-    # Make sure show_config works
+    # Make sure show_config works.
     konfik.show_config()
 
-    # Make sure show_config_literal works
+    # Make sure show_config_literal works.
     konfik.show_config_literal()
 
-    # Make sure show_var works
+    # Make sure show_var works.
     konfik.show_config_var("title")
     out, _ = capfd.readouterr()
     assert "TOML Example" in out
 
-    # Test variable access with dot notation
+    # Test variable access with dot notation.
     config = konfik.config
 
     assert config.title == "TOML Example"
@@ -263,13 +263,13 @@ def test_konfik_env(tmp_path, dotenv_str):
 
     test_env_path = make_config_path(tmp_path, dotenv_str, "env")
 
-    # Load toml from the test toml path
+    # Load toml from the test toml path.
     konfik = Konfik(config_path=test_env_path)
 
-    # Make sure the serializer works
+    # Make sure the serializer works.
     konfik.show_config()
 
-    # Test variable access with dot notation
+    # Test variable access with dot notation.
     config = konfik.config
 
     assert config.TITLE == "DOTENV_EXAMPLE"
@@ -291,21 +291,21 @@ def test_konfik_json(tmp_path, json_str, capfd):
 
     test_json_path = make_config_path(tmp_path, json_str, "json")
 
-    # Load toml from the test toml path
+    # Load toml from the test toml path.
     konfik = Konfik(config_path=test_json_path)
 
-    # Make sure show_config works
+    # Make sure show_config works.
     konfik.show_config()
 
-    # Make sure show_config_literal works
+    # Make sure show_config_literal works.
     konfik.show_config_literal()
 
-    # Make sure show_var works
+    # Make sure show_var works.
     konfik.show_config_var("title")
     out, _ = capfd.readouterr()
     assert "JSON Example" in out
 
-    # Test variable access with dot notation
+    # Test variable access with dot notation.
     config = konfik.config
 
     assert config.title == "JSON Example"
@@ -337,18 +337,18 @@ def test_konfik_yaml(tmp_path, yaml_str, capfd):
 
     konfik = Konfik(config_path=test_yaml_path)
 
-    # Make sure show_config works
+    # Make sure show_config works.
     konfik.show_config()
 
-    # Make sure show_config_literal works
+    # Make sure show_config_literal works.
     konfik.show_config_literal()
 
-    # Make sure show_var works
+    # Make sure show_var works.
     konfik.show_config_var("title")
     out, _ = capfd.readouterr()
     assert "YAML Example" in out
 
-    # Test variable access with dot notation
+    # Test variable access with dot notation.
     config = konfik.config
     assert config.title == "YAML Example"
     assert config.owner.name == "Tom Preston-Werner"
@@ -377,7 +377,7 @@ def test_konfik_cli(tmp_path, toml_str, capfd):
 
     test_toml_path = make_config_path(tmp_path, toml_str, "toml")
 
-    # Load toml from the test toml path
+    # Load toml from the test toml path.
     konfik_cli = KonfikCLI()
     parser = konfik_cli.build_parser()
     # args = parser.parse_args()

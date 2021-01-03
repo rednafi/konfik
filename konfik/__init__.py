@@ -84,25 +84,22 @@ class DotMap(dict):
     """Modified dictionary class that lets do access key:val via dot notation."""
 
     def __init__(self, *args, **kwargs):
-        # We trust the dict to init itself better than we can
+        # We trust the dict to init itself better than we can.
         super().__init__(*args, **kwargs)
-        # Because of that, we do duplicate work, but it's worth it
+        # Because of that, we do duplicate work, but it's worth it.
         for k, v in self.items():
             self.__setitem__(k, v)
 
     def __getitem__(self, key):
-        # Private method that gets called in self.__getitem__ method
         try:
             return super().__getitem__(key)
         except KeyError:
             raise MissingVariableError(f"No such variable '{key}' exists") from None
 
     def __setitem__(self, key, val):
-        # Private method that gets called in self.__setitem__ method
         super().__setitem__(key, self._convert(val))
 
     def __delitem__(self, key):
-        # Private method that gets called in self.__delitem__ method
         if hasattr(self, key):
             super().__delitem__(key)
 
@@ -189,7 +186,7 @@ class Konfik:
         """Load .env file"""
 
         try:
-            # Instead of using load_dotenv(), this is done to avoid recursively searching for dotenv file.
+            # Instead of using `load_dotenv()``, this is done to avoid recursively searching for dotenv file.
             # There is no element of surprise. If the file is not found in the explicit path, this will raise an error!
             dotenv_file = find_dotenv(
                 filename=config_path, raise_error_if_not_found=True, usecwd=True
@@ -215,7 +212,7 @@ class Konfik:
     def _load_toml(config_path):
         """Load .toml file."""
 
-        # FileNotFound & TomlDecodeError will be raised
+        # FileNotFound & TomlDecodeError will be raised.
         try:
             config = toml.load(config_path)
             return config
@@ -254,7 +251,7 @@ class KonfikCLI:
             )
         )
 
-        # Add arguments
+        # Add arguments.
         parser.add_argument("--path", help="add config file path")
         parser.add_argument(
             "--show",
@@ -276,7 +273,7 @@ class KonfikCLI:
         return parser
 
     def raise_arg_error(self, parser, args):
-        # Deal with argument dependencies
+        # Deal with argument dependencies.
         for k, v in vars(args).items():
             if k == "version" and k == "path":
                 continue
