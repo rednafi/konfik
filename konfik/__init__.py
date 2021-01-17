@@ -27,8 +27,7 @@ class Colorize:
         sys.excepthook = self.colorize_traceback
 
     def colorize_traceback(self, type, value, tb):
-        """Colorize traceback --
-        used when an exception is raised."""
+        """Colorize exception tracebacks."""
 
         lexer = get_lexer_by_name("py3tb")
         tbtext = "".join(traceback.format_exception(type, value, tb))
@@ -37,8 +36,7 @@ class Colorize:
         sys.stderr.write(highlight(tbtext, lexer, self.formatter))
 
     def colorize_config(self, config_str, config_ext):
-        """Colorize config string --
-        used while printing the config literal."""
+        """Colorize config literals."""
 
         lexer_map = {
             "toml": "toml",
@@ -51,15 +49,14 @@ class Colorize:
         print(highlight(config_str, lexer, self.formatter))
 
     def colorize_entity(self, entity):
-        """Colorize python entities --
-        used while printing a variable or python object."""
+        """Colorize printed Python objects."""
 
         lexer = PythonLexer()
         entity = pformat(entity, indent=1, compact=True, width=60)
         print(highlight(entity, lexer, self.formatter))
 
     def colorize_title(self, text):
-        """Colorize CLI tool title in the terminal."""
+        """Colorize CLI title."""
 
         CYAN = "\033[96m"
         BOLD = "\033[1m"
@@ -76,12 +73,12 @@ class MissingVariableError(Exception):
 
 
 class MissingConfigError(Exception):
-    """Error is raised when configuration file is not found. This
+    """Error is raised when the configuration file is not found. This
     encapsulates the built-in FileNotFoundError."""
 
 
 class DotMap(dict):
-    """Modified dictionary class that lets do access key:val via dot notation."""
+    """Modified dictionary class that lets you access key:val via dot notation."""
 
     def __init__(self, *args, **kwargs):
         # We trust the dict to init itself better than we can.
@@ -110,7 +107,7 @@ class DotMap(dict):
     @classmethod
     def _convert(cls, o):
         """
-        Recursively convert `dict` objects in `dict`, `list`, `set`, and
+        Recursively convert `dict` objects inside `dict`, `list`, `set`, and
         `tuple` objects to `DotMap` objects.
         """
         if isinstance(o, dict):
@@ -150,7 +147,7 @@ class Konfik:
             colorize.colorize_config(config_str, self._config_ext)
 
     def show_config_var(self, query):
-        """Print config variable."""
+        """Print the config variables."""
 
         if isinstance(query, str):
             query_lst = query.split(".")
@@ -178,12 +175,12 @@ class Konfik:
 
             else:
                 raise NotImplementedError(
-                    f"Config type '{self._config_ext}' is not supported"
+                    f"Config type '{self._config_ext}' is not supported."
                 )
 
     @staticmethod
     def _load_env(config_path):
-        """Load .env file"""
+        """Load .env file."""
 
         try:
             # Instead of using `load_dotenv()``, this is done to avoid recursively searching for dotenv file.
@@ -197,7 +194,7 @@ class Konfik:
                 return config
 
         except OSError:
-            raise MissingConfigError("DOTENV file not found") from None
+            raise MissingConfigError("DOTENV file not found.") from None
 
     @staticmethod
     def _load_json(config_path):
@@ -206,7 +203,7 @@ class Konfik:
                 config = json.load(f)
                 return config
         except FileNotFoundError:
-            raise MissingConfigError("JSON file not found")
+            raise MissingConfigError("JSON file not found.")
 
     @staticmethod
     def _load_toml(config_path):
@@ -218,7 +215,7 @@ class Konfik:
             return config
 
         except FileNotFoundError:
-            raise MissingConfigError("TOML file not found") from None
+            raise MissingConfigError("TOML file not found.") from None
 
     @staticmethod
     def _load_yaml(config_path):
@@ -227,7 +224,7 @@ class Konfik:
                 config = yaml.safe_load(f)
                 return config
         except FileNotFoundError:
-            raise MissingConfigError("YAML file not found")
+            raise MissingConfigError("YAML file not found.")
 
     @staticmethod
     def get_by_path(dct, key_list):
@@ -237,12 +234,12 @@ class Konfik:
             return reduce(operator.getitem, key_list, dct)
         except KeyError as e:
             raise MissingVariableError(
-                f"No such variable '{e.args[0]}' exists"
+                f"No such variable '{e.args[0]}' exists."
             ) from None
 
 
 class KonfikCLI:
-    """Access and show config variables using CLI."""
+    """Access and show config variables using the CLI."""
 
     def build_parser(self):
         parser = argparse.ArgumentParser(
@@ -279,7 +276,7 @@ class KonfikCLI:
                 continue
 
             if v and not args.path:
-                parser.error(f"The --{k} argument requires the --path argument")
+                parser.error(f"The --{k} argument requires the --path argument.")
 
     def trigger_handler(self, args, konfik_cls=Konfik, version=__version__):
         if args.version:
