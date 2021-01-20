@@ -142,5 +142,5 @@ konfik --path=config.toml --var=servers.alpha.ip
 ```
 
 <div align="center">
-<i> 🍰 </i>
+<i> ✨ 🍰 ✨ </i>
 </div>
