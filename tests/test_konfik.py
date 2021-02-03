@@ -6,8 +6,8 @@ from konfik import (
     Konfik,
     MissingConfigError,
     MissingVariableError,
-    cli_entrypoint,
     __version__,
+    cli_entrypoint,
 )
 
 
