@@ -4,9 +4,10 @@ from konfik import (
     Colorize,
     DotMap,
     Konfik,
-    KonfikCLI,
     MissingConfigError,
     MissingVariableError,
+    cli_entrypoint,
+    __version__,
 )
 
 
@@ -372,12 +373,49 @@ def test_konfik_yaml(tmp_path, yaml_str, capfd):
         config.fakekey
 
 
-def test_konfik_cli(tmp_path, toml_str, capfd):
-    """Test the KonfikCLI class for toml."""
+def test_konfik_cli_version(capsys):
+    """Test the CLI version."""
 
-    test_toml_path = make_config_path(tmp_path, toml_str, "toml")
+    cli_entrypoint(argv=["--version"])
+    capture = capsys.readouterr()
+    assert __version__ in capture.out
+    assert capture.err == ""
 
-    # Load toml from the test toml path.
-    konfik_cli = KonfikCLI()
-    parser = konfik_cli.build_parser()
-    # args = parser.parse_args()
+
+def test_konfik_cli_path(capsys):
+    """Test the CLI help message."""
+
+    cli_entrypoint(argv=["--path=examples/config.toml"])
+    capture = capsys.readouterr()
+    assert capture.err == ""
+    assert "Konfik -- The strangely familiar config parser ⚙️" in capture.out
+
+
+def test_konfik_cli_show(capsys):
+    """Test the CLI help message."""
+
+    cli_entrypoint(argv=["--path=examples/config.toml", "--show"])
+    capture = capsys.readouterr()
+    assert capture.err == ""
+    assert "Konfik -- The strangely familiar config parser ⚙️" in capture.out
+    assert "TOML Example" in capture.out
+
+
+def test_konfik_cli_show_literal(capsys):
+    """Test the CLI help message."""
+
+    cli_entrypoint(argv=["--path=examples/config.toml", "--show-literal"])
+    capture = capsys.readouterr()
+    assert capture.err == ""
+    assert "Konfik -- The strangely familiar config parser ⚙️" in capture.out
+    assert "TOML Example" in capture.out
+
+
+def test_konfik_cli_show_var(capsys):
+    """Test the CLI help message."""
+
+    cli_entrypoint(argv=["--path=examples/config.toml", "--var=owner.dob"])
+    capture = capsys.readouterr()
+    assert capture.err == ""
+    assert "Konfik -- The strangely familiar config parser ⚙️" in capture.out
+    assert "tzinfo=<toml.tz.TomlTz" in capture.out

@@ -1,7 +1,7 @@
 # Package manager metadata
 [tool.poetry]
 name = "konfik"
-version = "2.0.4"
+version = "2.0.5"
 description = "The Strangely Familiar Config Parser"
 authors = ["rednafi <redowan.nafi@gmail.com>"]
 license = "MIT"
@@ -26,10 +26,10 @@ PyYAML = "^5.3.1"
 Pygments = "^2.7.3"
 
 [tool.poetry.dev-dependencies]
-pytest = "^6.2.1"
-tox = "^3.20.1"
+pytest = "^6.2.2"
+tox = "^3.21.4"
 black = "^20.8b1"
-pytest-cov = "^2.10.1"
+pytest-cov = "^2.11.1"
 isort = "^5.7.0"
 
 # CLI entrypoints

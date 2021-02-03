@@ -174,9 +174,7 @@ class Konfik:
                 return self._load_yaml(config_path)
 
             else:
-                raise NotImplementedError(
-                    f"Config type '{self._config_ext}' is not supported."
-                )
+                raise NotImplementedError(f"Config type '{self._config_ext}' is not supported.")
 
     @staticmethod
     def _load_env(config_path):
@@ -185,9 +183,7 @@ class Konfik:
         try:
             # Instead of using `load_dotenv()``, this is done to avoid recursively searching for dotenv file.
             # There is no element of surprise. If the file is not found in the explicit path, this will raise an error!
-            dotenv_file = find_dotenv(
-                filename=config_path, raise_error_if_not_found=True, usecwd=True
-            )
+            dotenv_file = find_dotenv(filename=config_path, raise_error_if_not_found=True, usecwd=True)
 
             if dotenv_file:
                 config = dotenv_values(dotenv_file)
@@ -233,9 +229,7 @@ class Konfik:
         try:
             return reduce(operator.getitem, key_list, dct)
         except KeyError as e:
-            raise MissingVariableError(
-                f"No such variable '{e.args[0]}' exists."
-            ) from None
+            raise MissingVariableError(f"No such variable '{e.args[0]}' exists.") from None
 
 
 class KonfikCLI:
@@ -243,9 +237,7 @@ class KonfikCLI:
 
     def build_parser(self):
         parser = argparse.ArgumentParser(
-            description=colorize.colorize_title(
-                "\nKonfik -- The strangely familiar config parser ⚙️\n"
-            )
+            description=colorize.colorize_title("\nKonfik -- The strangely familiar config parser ⚙️\n")
         )
 
         # Add arguments.
@@ -272,7 +264,10 @@ class KonfikCLI:
     def raise_arg_error(self, parser, args):
         # Deal with argument dependencies.
         for k, v in vars(args).items():
-            if k == "version" and k == "path":
+            if k == "version":
+                continue
+
+            if k == "path":
                 continue
 
             if v and not args.path:
@@ -293,12 +288,16 @@ class KonfikCLI:
                 konfik.show_config_var(args.var)
 
 
-def cli_entrypoint():
+def cli_entrypoint(argv=None):
     """CLI entrypoint callable."""
 
     konfik_cli = KonfikCLI()
     parser = konfik_cli.build_parser()
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     konfik_cli.raise_arg_error(parser, args)
     konfik_cli.trigger_handler(args)
+
+
+# if __name__ == "__main__":
+#     cli_entrypoint()
