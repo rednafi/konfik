@@ -11,13 +11,17 @@ from konfik import (
 )
 
 
-def test_colorize(config_dict, capfd):
+def test_colorize(config_dict, capsys):
     colorize = Colorize()
+
     colorize.colorize_entity(config_dict)
-    out, _ = capfd.readouterr()
+    out, err = capsys.readouterr()
+    assert err == ""
     assert "{\x1b[33m'\x1b[39;49;00m\x1b[33mclients\x1b[39;49;00m\x1b[33m" in out
+
     colorize.colorize_title("Hello from the other side!")
-    out, _ = capfd.readouterr()
+    out, err = capsys.readouterr()
+    assert err == ""
     assert "Hello from the" in out
 
 
@@ -215,7 +219,7 @@ def test_konfik(tmp_path, toml_str):
     assert konfik._config_ext == "toml"
 
 
-def test_konfik_toml(tmp_path, toml_str, capfd):
+def test_konfik_toml(tmp_path, toml_str, capsys):
     """Test the Konfik class for toml."""
 
     test_toml_path = make_config_path(tmp_path, toml_str, "toml")
@@ -231,7 +235,8 @@ def test_konfik_toml(tmp_path, toml_str, capfd):
 
     # Make sure show_var works.
     konfik.show_config_var("title")
-    out, _ = capfd.readouterr()
+    out, err = capsys.readouterr()
+    assert err == ""
     assert "TOML Example" in out
 
     # Test variable access with dot notation.
@@ -287,7 +292,7 @@ def test_konfik_env(tmp_path, dotenv_str):
         config.fakekey
 
 
-def test_konfik_json(tmp_path, json_str, capfd):
+def test_konfik_json(tmp_path, json_str, capsys):
     """Test the Konfik class for json."""
 
     test_json_path = make_config_path(tmp_path, json_str, "json")
@@ -303,7 +308,8 @@ def test_konfik_json(tmp_path, json_str, capfd):
 
     # Make sure show_var works.
     konfik.show_config_var("title")
-    out, _ = capfd.readouterr()
+    out, err = capsys.readouterr()
+    assert err == ""
     assert "JSON Example" in out
 
     # Test variable access with dot notation.
@@ -331,7 +337,7 @@ def test_konfik_json(tmp_path, json_str, capfd):
         config.fakekey
 
 
-def test_konfik_yaml(tmp_path, yaml_str, capfd):
+def test_konfik_yaml(tmp_path, yaml_str, capsys):
     """Test the Konfik class for yaml."""
 
     test_yaml_path = make_config_path(tmp_path, yaml_str, "yaml")
@@ -346,7 +352,8 @@ def test_konfik_yaml(tmp_path, yaml_str, capfd):
 
     # Make sure show_var works.
     konfik.show_config_var("title")
-    out, _ = capfd.readouterr()
+    out, err = capsys.readouterr()
+    assert err == ""
     assert "YAML Example" in out
 
     # Test variable access with dot notation.
