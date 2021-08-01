@@ -21,7 +21,7 @@ include = ["LICENSE"]
 [tool.poetry.dependencies]
 python = "^3.6"
 toml = "^0.10.2"
-python-dotenv = ">=0.15,<0.18"
+python-dotenv = ">=0.15,<0.20"
 PyYAML = "^5.4.1"
 Pygments = "^2.8.0"
 pytest = "^6.2.2"
